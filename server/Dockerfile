@@ -1,12 +1,10 @@
 FROM node:20-slim
 WORKDIR /app
 
-RUN npm install -g nodemon
+COPY package*.json ./
+RUN npm install --omit=dev
 
-COPY server/package*.json ./
-RUN npm install
-
-COPY server/ .
+COPY . .
 
 EXPOSE 5000
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]

@@ -307,7 +307,7 @@ const swaggerDocument = {
 };
 
 app.use(cors({
-  origin: "*",
+  origin: process.env.CORS_ORIGIN || "*",
   credentials: false
 }));
 

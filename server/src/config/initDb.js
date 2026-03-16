@@ -2,6 +2,7 @@ const db = require('./db');
 
 const initializeDatabase = async () => {
   try {
+    // Create tables one by one (more reliable on cloud DBs like Railway)
     await db.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -14,8 +15,10 @@ const initializeDatabase = async () => {
         is_activated BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
+      )
+    `);
 
+    await db.query(`
       CREATE TABLE IF NOT EXISTS teachers (
         id SERIAL PRIMARY KEY,
         first_name VARCHAR(100) NOT NULL,
@@ -28,8 +31,10 @@ const initializeDatabase = async () => {
         quote TEXT,
         is_klassenlehrer BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
+      )
+    `);
 
+    await db.query(`
       CREATE TABLE IF NOT EXISTS students (
         id SERIAL PRIMARY KEY,
         first_name VARCHAR(100) NOT NULL,
@@ -38,8 +43,10 @@ const initializeDatabase = async () => {
         profile_picture_url VARCHAR(500),
         bio TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
+      )
+    `);
 
+    await db.query(`
       CREATE TABLE IF NOT EXISTS messages (
         id SERIAL PRIMARY KEY,
         from_user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -47,11 +54,11 @@ const initializeDatabase = async () => {
         to_teacher_id INTEGER REFERENCES teachers(id) ON DELETE CASCADE,
         content TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-
-      CREATE INDEX IF NOT EXISTS idx_messages_student ON messages(to_student_id);
-      CREATE INDEX IF NOT EXISTS idx_messages_teacher ON messages(to_teacher_id);
+      )
     `);
+
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_messages_student ON messages(to_student_id)`);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_messages_teacher ON messages(to_teacher_id)`);
 
     // Seed teachers if empty
     const teacherCount = await db.query('SELECT COUNT(*) FROM teachers');
@@ -101,7 +108,6 @@ const initializeDatabase = async () => {
       `);
     }
 
-
     // Seed students if empty
     const studentCount = await db.query('SELECT COUNT(*) FROM students');
     if (parseInt(studentCount.rows[0].count) === 0) {
@@ -132,13 +138,13 @@ const initializeDatabase = async () => {
         ('Nico',         'Britz',            'nico.britz@tn.techstarter.de',           'Jedes Ende ist ein neuer Anfang.'),
         ('Rebekka',      'Mangelsdorf',      'rebekka.mangelsdorf@tn.techstarter.de',  'Die beste Version meiner selbst sein.'),
         ('Reyyan',       'Ahmad',            'reyyan.ahmad@tn.techstarter.de',         'Mit Technologie die Welt verbessern.'),
-        ('Tobias',       'Hoppen',           'tobias.hoppen@tn.techstarter.de',        'Der Mut beginnt mit dem ersten Schritt.')
+        ('Tobias',       'Hoppen',           'tobias.hoppen@tn.techstarter.de',        'Der Weg beginnt mit dem ersten Schritt.')
       `);
     }
 
-    console.log('Database initialized successfully');
+    console.log('✅ Database initialized successfully');
   } catch (err) {
-    console.error('Database initialization error:', err.message);
+    console.error('❌ Database initialization error:', err.message);
   }
 };
 
