@@ -3,10 +3,12 @@ WORKDIR /app
 
 RUN npm install -g serve
 
-COPY package*.json ./
+COPY client/package*.json ./
 RUN npm install
 
-COPY . .
+COPY client/ .
+
+RUN npm run build
 
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["serve", "-s", "build", "-l", "3000"]
