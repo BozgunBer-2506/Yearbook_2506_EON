@@ -301,6 +301,14 @@ const Dashboard = ({ user, onLogout }) => {
 
   const handleSelect = async (student) => {
     setSelectedStudent(student);
+    setTimeout(() => {
+    if (flipBook.current) {
+      const pageFlip = flipBook.current.pageFlip();
+      const currentIndex = pageFlip.getCurrentPageIndex();
+      
+      pageFlip.flip(currentIndex + 1);
+    }
+  }, 100);
     try {
       const res = await axios.get(`${API}/yearbook/messages/student/${student.id}`);
       setStudentMessages(res.data);
@@ -309,8 +317,6 @@ const Dashboard = ({ user, onLogout }) => {
 
   const onNext = useCallback(() => flipBook.current?.pageFlip().flipNext(), []);
   const onPrev = useCallback(() => flipBook.current?.pageFlip().flipPrev(), []);
-
-  const dozent = teachers.find(t => t.is_klassenlehrer);
 
   const chunks = [];
   for (let i = 0; i < students.length; i += 6) chunks.push(students.slice(i, i + 6));
@@ -330,59 +336,54 @@ const Dashboard = ({ user, onLogout }) => {
     <div className="dash-root">
       <NebulaBackground />
       <header className="dash-header">
-        <span className="dash-logo">EON <span>JAHRBUCH</span></span>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-          {user && <span className="dash-meta">Willkommen, {user.firstName}</span>}
-          {onLogout && (
-            <button onClick={onLogout} className="dash-btn" style={{ backgroundColor: '#cc0000' }}>
-              LOGOUT
-            </button>
-          )}
-        </div>
+        <div className="dash-logo">EON <span>JAHRBUCH</span></div>
+        <div className="dash-meta">KLASSE 25-06 · {user?.firstName}</div>
+        <button className="dash-btn logout-btn" onClick={onLogout}>LOGOUT</button>
       </header>
 
-      <div className="dash-stage">
+      <main className="dash-stage">
         <HTMLFlipBook
           width={500} height={700}
-          size="fixed"
-          maxShadowOpacity={0.8}
-          showCover={true}
-          mobileScrollSupport={true}
-          ref={flipBook}
-          className="the-book"
-          onFlip={e => setCurrentPage(e.data)}
-          flippingTime={900}
-          usePortrait={false}
+          size="fixed" minWidth={315} maxWidth={1000} minHeight={420} maxHeight={1350}
+          maxShadowOpacity={0.5} showCover={true} mobileScrollSupport={true}
+          onFlip={(e) => setCurrentPage(e.data)}
+          className="the-book" ref={flipBook}
+          clickEventForward={false} 
+          useMouseEvents={false}  
         >
           <CoverPage />
-          <BlankPage /><KursInfoPage />
-          <BlankPage /><TeamPage teachers={teachers} />
-          <BlankPage /><DozentPage teacher={dozent} messages={teacherMessages} />
-
-          <StudentGridPage students={chunks[0]} onSelect={handleSelect} selected={selectedStudent} pageNum="08" />
-          <StudentProfilePage student={selectedStudent && chunks[0].some(s => s.id === selectedStudent?.id) ? selectedStudent : null} messages={selectedStudent && chunks[0].some(s => s.id === selectedStudent?.id) ? studentMessages : []} />
-
-          <StudentGridPage students={chunks[1]} onSelect={handleSelect} selected={selectedStudent} pageNum="10" />
-          <StudentProfilePage student={selectedStudent && chunks[1].some(s => s.id === selectedStudent?.id) ? selectedStudent : null} messages={selectedStudent && chunks[1].some(s => s.id === selectedStudent?.id) ? studentMessages : []} />
-
-          <StudentGridPage students={chunks[2]} onSelect={handleSelect} selected={selectedStudent} pageNum="12" />
-          <StudentProfilePage student={selectedStudent && chunks[2].some(s => s.id === selectedStudent?.id) ? selectedStudent : null} messages={selectedStudent && chunks[2].some(s => s.id === selectedStudent?.id) ? studentMessages : []} />
-
-          <StudentGridPage students={chunks[3]} onSelect={handleSelect} selected={selectedStudent} pageNum="14" />
-          <StudentProfilePage student={selectedStudent && chunks[3].some(s => s.id === selectedStudent?.id) ? selectedStudent : null} messages={selectedStudent && chunks[3].some(s => s.id === selectedStudent?.id) ? studentMessages : []} />
-
-          <StudentGridPage students={chunks[4]} onSelect={handleSelect} selected={selectedStudent} pageNum="16" />
-          <StudentProfilePage student={selectedStudent && chunks[4].some(s => s.id === selectedStudent?.id) ? selectedStudent : null} messages={selectedStudent && chunks[4].some(s => s.id === selectedStudent?.id) ? studentMessages : []} />
-
+          <BlankPage />
+          <KursInfoPage />
+          <BlankPage />
+          <TeamPage teachers={teachers} />
+          <BlankPage />
+          <DozentPage teacher={teachers.find(t => t.is_klassenlehrer)} messages={teacherMessages} />
+          {chunks.map((chunk, idx) => [
+            <StudentGridPage 
+              key={`grid-${idx}`} 
+              students={chunk} 
+              onSelect={handleSelect} 
+              selected={selectedStudent}
+              pageNum={String(8 + idx * 2).padStart(2, '0')}
+            />,
+            <StudentProfilePage 
+              key={`prof-${idx}`} 
+              student={selectedStudent && chunk.some(s => s.id === selectedStudent.id) ? selectedStudent : null}
+              messages={selectedStudent && chunk.some(s => s.id === selectedStudent.id) ? studentMessages : []}
+            />
+          ])}
           <BackCoverPage />
         </HTMLFlipBook>
-      </div>
+      </main>
 
-      <div className="dash-controls">
-        <button className="dash-btn" onClick={onPrev}>‹ ZURÜCK</button>
-        <span className="dash-page">{currentPage + 1}</span>
+      <footer className="dash-controls">
+        <button className="dash-btn" onClick={onPrev} disabled={currentPage === 0}>‹ ZURÜCK</button>
+        <div className="dash-pagination">
+          <span className="current">{currentPage + 1}</span>
+          <span className="total">/ {teachers.length + (chunks.length * 2) + 6}</span>
+        </div>
         <button className="dash-btn" onClick={onNext}>WEITER ›</button>
-      </div>
+      </footer>
     </div>
   );
 };
