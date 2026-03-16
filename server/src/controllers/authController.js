@@ -16,7 +16,6 @@ exports.register = async (req, res) => {
   }
 
   try {
-    // Check if email already exists
     const existing = await db.query('SELECT id FROM users WHERE email = $1', [email]);
     if (existing.rows.length > 0) {
       return res.status(409).json({ error: 'Diese E-Mail ist bereits registriert.' });
@@ -24,7 +23,6 @@ exports.register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
     const userResult = await db.query(
       `INSERT INTO users (email, password_hash, first_name, last_name, role, is_activated)
        VALUES ($1, $2, $3, $4, 'student', true) RETURNING *`,
@@ -32,7 +30,6 @@ exports.register = async (req, res) => {
     );
     const user = userResult.rows[0];
 
-    // Create student profile
     await db.query(
       `INSERT INTO students (first_name, last_name, email)
        VALUES ($1, $2, $3)
@@ -104,6 +101,38 @@ exports.login = async (req, res) => {
     });
   } catch (err) {
     console.error('Login error:', err.message);
+    return res.status(500).json({ error: 'Serverfehler: ' + err.message });
+  }
+};
+
+// POST /api/auth/reset-password
+exports.resetPassword = async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  if (!email || !newPassword) {
+    return res.status(400).json({ error: 'E-Mail und neues Passwort erforderlich.' });
+  }
+  if (newPassword.length < 6) {
+    return res.status(400).json({ error: 'Passwort muss mindestens 6 Zeichen haben.' });
+  }
+
+  try {
+    const result = await db.query('SELECT id FROM users WHERE email = $1', [email]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Kein Konto mit dieser E-Mail gefunden.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await db.query(
+      'UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE email = $2',
+      [hashedPassword, email]
+    );
+
+    return res.status(200).json({ message: 'Passwort erfolgreich zurückgesetzt.' });
+  } catch (err) {
+    console.error('Reset password error:', err.message);
     return res.status(500).json({ error: 'Serverfehler: ' + err.message });
   }
 };

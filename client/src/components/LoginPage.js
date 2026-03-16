@@ -5,8 +5,8 @@ import './LoginPage.css';
 const API = 'https://yearbook2506eon-production.up.railway.app/api/auth';
 
 const LoginPage = ({ onLoginSuccess }) => {
-    const [mode, setMode] = useState('login'); // 'login' | 'register'
-    const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '' });
+    const [mode, setMode] = useState('login'); // 'login' | 'register' | 'reset'
+    const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', newPassword: '' });
     const [message, setMessage] = useState({ text: '', error: false });
     const [loading, setLoading] = useState(false);
 
@@ -53,6 +53,23 @@ const LoginPage = ({ onLoginSuccess }) => {
         setLoading(false);
     };
 
+    const handleReset = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        msg('');
+        try {
+            await axios.post(`${API}/reset-password`, {
+                email: form.email,
+                newPassword: form.newPassword,
+            });
+            msg('Passwort erfolgreich zurückgesetzt! Du kannst dich jetzt anmelden.');
+            setTimeout(() => { setMode('login'); msg(''); }, 2500);
+        } catch (err) {
+            msg(err.response?.data?.error || 'Fehler beim Zurücksetzen.', true);
+        }
+        setLoading(false);
+    };
+
     return (
         <div className="lp-root">
             {/* Stars */}
@@ -80,16 +97,18 @@ const LoginPage = ({ onLoginSuccess }) => {
                 </div>
 
                 {/* Tab Toggle */}
-                <div className="lp-tabs">
-                    <button
-                        className={`lp-tab ${mode === 'login' ? 'active' : ''}`}
-                        onClick={() => { setMode('login'); msg(''); }}
-                    >Anmelden</button>
-                    <button
-                        className={`lp-tab ${mode === 'register' ? 'active' : ''}`}
-                        onClick={() => { setMode('register'); msg(''); }}
-                    >Registrieren</button>
-                </div>
+                {mode !== 'reset' && (
+                    <div className="lp-tabs">
+                        <button
+                            className={`lp-tab ${mode === 'login' ? 'active' : ''}`}
+                            onClick={() => { setMode('login'); msg(''); }}
+                        >Anmelden</button>
+                        <button
+                            className={`lp-tab ${mode === 'register' ? 'active' : ''}`}
+                            onClick={() => { setMode('register'); msg(''); }}
+                        >Registrieren</button>
+                    </div>
+                )}
 
                 {/* Login Form */}
                 {mode === 'login' && (
@@ -110,6 +129,10 @@ const LoginPage = ({ onLoginSuccess }) => {
                         <p className="lp-switch">
                             Noch kein Konto?{' '}
                             <span onClick={() => { setMode('register'); msg(''); }}>Jetzt registrieren</span>
+                        </p>
+                        <p className="lp-switch">
+                            Passwort vergessen?{' '}
+                            <span onClick={() => { setMode('reset'); msg(''); setForm(f => ({ ...f, email: '', newPassword: '' })); }}>Zurücksetzen</span>
                         </p>
                     </form>
                 )}
@@ -145,6 +168,29 @@ const LoginPage = ({ onLoginSuccess }) => {
                         <p className="lp-switch">
                             Bereits registriert?{' '}
                             <span onClick={() => { setMode('login'); msg(''); }}>Anmelden</span>
+                        </p>
+                    </form>
+                )}
+
+                {/* Reset Password Form */}
+                {mode === 'reset' && (
+                    <form className="lp-form" onSubmit={handleReset}>
+                        <div className="lp-reset-title">🔑 Passwort zurücksetzen</div>
+                        <div className="lp-field">
+                            <label className="lp-label">E-Mail</label>
+                            <input className="lp-input" type="email" placeholder="deine@email.de"
+                                value={form.email} onChange={set('email')} required />
+                        </div>
+                        <div className="lp-field">
+                            <label className="lp-label">Neues Passwort <span className="lp-hint">(min. 6 Zeichen)</span></label>
+                            <input className="lp-input" type="password" placeholder="••••••••"
+                                value={form.newPassword} onChange={set('newPassword')} required minLength={6} />
+                        </div>
+                        <button className="lp-btn" type="submit" disabled={loading}>
+                            {loading ? <span className="lp-spinner" /> : 'Passwort ändern ›'}
+                        </button>
+                        <p className="lp-switch">
+                            <span onClick={() => { setMode('login'); msg(''); }}>← Zurück zur Anmeldung</span>
                         </p>
                     </form>
                 )}
