@@ -11,13 +11,18 @@ function App() {
     setUser(JSON.parse(localStorage.getItem('user')));
   };
 
-  // Yearbook is always visible — login only needed to post messages
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+  };
+
   return (
     <div style={{ backgroundColor: '#06080e', minHeight: '100vh' }}>
       {!user ? (
         <LoginPage onLoginSuccess={handleLoginSuccess} />
       ) : (
-        <Dashboard />
+        <Dashboard user={user} onLogout={handleLogout} />
       )}
     </div>
   );

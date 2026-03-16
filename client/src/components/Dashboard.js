@@ -7,7 +7,6 @@ const API = 'https://yearbook2506eon-production.up.railway.app/api';
 const getToken = () => localStorage.getItem('token');
 const initials = (fn, ln) => `${fn?.[0] || ''}${ln?.[0] || ''}`.toUpperCase();
 
-// ── Nebula Background ─────────────────────────────────────────────────────────
 const NebulaBackground = () => (
   <div className="nebula-bg" aria-hidden="true">
     <div className="nebula n1" />
@@ -28,7 +27,6 @@ const NebulaBackground = () => (
   </div>
 );
 
-// ── Avatar ────────────────────────────────────────────────────────────────────
 const Avatar = ({ firstName, lastName, url, size = 60, variant = 'teal' }) => (
   <div className={`avatar av-${variant}`} style={{ width: size, height: size, fontSize: size * 0.3, minWidth: size }}>
     {url
@@ -38,7 +36,6 @@ const Avatar = ({ firstName, lastName, url, size = 60, variant = 'teal' }) => (
   </div>
 );
 
-// ── Message Box ───────────────────────────────────────────────────────────────
 const MessageBox = ({ targetType, targetId, messages: initMsgs }) => {
   const [msgs, setMsgs] = useState(initMsgs || []);
   const [text, setText] = useState('');
@@ -101,7 +98,6 @@ const MessageBox = ({ targetType, targetId, messages: initMsgs }) => {
   );
 };
 
-// ── COVER ─────────────────────────────────────────────────────────────────────
 const CoverPage = React.forwardRef((props, ref) => (
   <div className="page cover-page" ref={ref} data-density="hard">
     <div className="cover-nebula-1" />
@@ -131,14 +127,12 @@ const CoverPage = React.forwardRef((props, ref) => (
   </div>
 ));
 
-// ── BLANK ─────────────────────────────────────────────────────────────────────
 const BlankPage = React.forwardRef((props, ref) => (
   <div className="page blank-page" ref={ref}>
     <div className="blank-dots" />
   </div>
 ));
 
-// ── KURS INFO ─────────────────────────────────────────────────────────────────
 const KursInfoPage = React.forwardRef((props, ref) => (
   <div className="page inner-page" ref={ref}>
     <div className="ip-glow teal-glow" />
@@ -165,7 +159,6 @@ const KursInfoPage = React.forwardRef((props, ref) => (
   </div>
 ));
 
-// ── TEAM ─────────────────────────────────────────────────────────────────────
 const TeamPage = React.forwardRef(({ teachers }, ref) => (
   <div className="page inner-page team-page-full" ref={ref}>
     <div className="ip-glow purple-glow" />
@@ -184,7 +177,6 @@ const TeamPage = React.forwardRef(({ teachers }, ref) => (
   </div>
 ));
 
-// ── DOZENT ────────────────────────────────────────────────────────────────────
 const DozentPage = React.forwardRef(({ teacher, messages }, ref) => (
   <div className="page inner-page" ref={ref}>
     <div className="ip-glow teal-glow" />
@@ -208,7 +200,6 @@ const DozentPage = React.forwardRef(({ teacher, messages }, ref) => (
   </div>
 ));
 
-// ── STUDENT GRID ──────────────────────────────────────────────────────────────
 const StudentGridPage = React.forwardRef(({ students, onSelect, selected, pageNum }, ref) => (
   <div className="page inner-page grid-page" ref={ref}>
     <div className="ip-glow teal-glow" />
@@ -225,7 +216,6 @@ const StudentGridPage = React.forwardRef(({ students, onSelect, selected, pageNu
           <div className="sc-lname">{s.last_name}</div>
         </div>
       ))}
-      {/* Fill empty slots */}
       {Array.from({ length: Math.max(0, 6 - (students || []).length) }, (_, i) => (
         <div key={`empty-${i}`} className="student-card empty-card" />
       ))}
@@ -234,7 +224,6 @@ const StudentGridPage = React.forwardRef(({ students, onSelect, selected, pageNu
   </div>
 ));
 
-// ── STUDENT PROFILE ───────────────────────────────────────────────────────────
 const StudentProfilePage = React.forwardRef(({ student, messages }, ref) => (
   <div className="page inner-page profile-page" ref={ref}>
     <div className="ip-glow purple-glow" />
@@ -261,7 +250,6 @@ const StudentProfilePage = React.forwardRef(({ student, messages }, ref) => (
   </div>
 ));
 
-// ── BACK COVER ────────────────────────────────────────────────────────────────
 const BackCoverPage = React.forwardRef((props, ref) => (
   <div className="page cover-page back-cover" ref={ref} data-density="hard">
     <div className="cover-nebula-1 back-n1" />
@@ -282,8 +270,7 @@ const BackCoverPage = React.forwardRef((props, ref) => (
   </div>
 ));
 
-// ── DASHBOARD ─────────────────────────────────────────────────────────────────
-const Dashboard = () => {
+const Dashboard = ({ user, onLogout }) => {
   const flipBook = useRef();
   const [currentPage, setCurrentPage] = useState(0);
   const [teachers, setTeachers] = useState([]);
@@ -325,7 +312,6 @@ const Dashboard = () => {
 
   const dozent = teachers.find(t => t.is_klassenlehrer);
 
-  // 25 students, 6 per page = 5 pages (last page has 1)
   const chunks = [];
   for (let i = 0; i < students.length; i += 6) chunks.push(students.slice(i, i + 6));
   while (chunks.length < 5) chunks.push([]);
@@ -345,7 +331,14 @@ const Dashboard = () => {
       <NebulaBackground />
       <header className="dash-header">
         <span className="dash-logo">EON <span>JAHRBUCH</span></span>
-        <span className="dash-meta">Klasse 25-06 · 2026</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+          {user && <span className="dash-meta">Willkommen, {user.firstName}</span>}
+          {onLogout && (
+            <button onClick={onLogout} className="dash-btn" style={{ backgroundColor: '#cc0000' }}>
+              LOGOUT
+            </button>
+          )}
+        </div>
       </header>
 
       <div className="dash-stage">
