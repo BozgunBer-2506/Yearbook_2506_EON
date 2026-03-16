@@ -2,6 +2,8 @@ const db = require('../config/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'yearbook2506secretkey123';
+
 // POST /api/auth/register
 exports.register = async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
@@ -38,15 +40,9 @@ exports.register = async (req, res) => {
       [firstName, lastName, email]
     );
 
-    // Sign token
-    if (!process.env.JWT_SECRET) {
-      console.error('JWT_SECRET is not set!');
-      return res.status(500).json({ error: 'Server-Konfigurationsfehler: JWT_SECRET fehlt.' });
-    }
-
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: '7d' }
     );
 
@@ -89,15 +85,9 @@ exports.login = async (req, res) => {
       return res.status(403).json({ error: 'Ungültige Anmeldedaten.' });
     }
 
-    // Sign token
-    if (!process.env.JWT_SECRET) {
-      console.error('JWT_SECRET is not set!');
-      return res.status(500).json({ error: 'Server-Konfigurationsfehler: JWT_SECRET fehlt.' });
-    }
-
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: '7d' }
     );
 
