@@ -3,7 +3,7 @@ import HTMLFlipBook from 'react-pageflip';
 import axios from 'axios';
 import './Dashboard.css';
 
-const API = 'http://localhost:5000/api';
+const API = 'https://yearbook2506eon-production.up.railway.app/api';
 const getToken = () => localStorage.getItem('token');
 const initials = (fn, ln) => `${fn?.[0] || ''}${ln?.[0] || ''}`.toUpperCase();
 

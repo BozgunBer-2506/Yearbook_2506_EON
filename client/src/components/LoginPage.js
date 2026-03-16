@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './LoginPage.css';
 
-const API = 'http://localhost:5000/api/auth';
+const API = 'https://yearbook2506eon-production.up.railway.app/api/auth';
 
 const LoginPage = ({ onLoginSuccess }) => {
     const [mode, setMode] = useState('login'); // 'login' | 'register'
