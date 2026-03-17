@@ -30,7 +30,7 @@ const NebulaBackground = () => (
 const Avatar = ({ firstName, lastName, url, size = 60, variant = 'teal' }) => (
   <div className={`avatar av-${variant}`} style={{ width: size, height: size, fontSize: size * 0.3, minWidth: size }}>
     {url
-      ? <img src={url} alt={`${firstName} ${lastName}`} />
+      ? <img src={"/images/" + url} alt={`${firstName} ${lastName}`} />
       : <span>{initials(firstName, lastName)}</span>
     }
   </div>
