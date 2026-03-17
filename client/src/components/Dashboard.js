@@ -164,7 +164,7 @@ const TeamPage = React.forwardRef(({ teachers }, ref) => (
     <div className="ip-glow purple-glow" />
     <div className="ip-eyebrow" style={{ textAlign: 'center' }}>DEIN KURS-TEAM</div>
     <div className="team-cards-full">
-      {(teachers || []).filter(t => !t.is_klassenlehrer).map(t => (
+      {(teachers || []).map(t => (
         <div className="team-card-full" key={t.id}>
           <Avatar firstName={t.first_name} lastName={t.last_name} url={t.profile_picture_url} size={80} variant="purple" />
           <div className="tcf-name">{t.first_name} {t.last_name}</div>
