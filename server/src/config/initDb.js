@@ -30,6 +30,7 @@ const initializeDatabase = async () => {
         booking_link VARCHAR(500),
         quote TEXT,
         is_klassenlehrer BOOLEAN DEFAULT FALSE,
+        profile_picture_url VARCHAR(500),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -64,7 +65,7 @@ const initializeDatabase = async () => {
     const teacherCount = await db.query('SELECT COUNT(*) FROM teachers');
     if (parseInt(teacherCount.rows[0].count) === 0) {
       await db.query(`
-        INSERT INTO teachers (first_name, last_name, role, subject, email, availability, booking_link, quote, is_klassenlehrer) VALUES
+        INSERT INTO teachers (first_name, last_name, role, subject, email, availability, booking_link, quote, profile_picture_url, is_klassenlehrer) VALUES
         (
           'Jacob', 'Menge',
           'Dozent',

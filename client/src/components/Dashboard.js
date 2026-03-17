@@ -264,7 +264,7 @@ const BackCoverPage = React.forwardRef((props, ref) => (
     <div className="cover-content">
       <div className="cover-eon" style={{ fontSize: '4rem' }}>EON</div>
       <div className="cover-line" />
-      <div className="cover-sub">Bis zum nächsten Mal · Klasse 25-06</div>
+      <div className="cover-sub">Auf unserem Weg haben wir viel erlebt! · Klasse 25-06</div>
       <div className="cover-eyebrow" style={{ marginTop: 40 }}>SYNTAX INSTITUT · 2026</div>
     </div>
   </div>
