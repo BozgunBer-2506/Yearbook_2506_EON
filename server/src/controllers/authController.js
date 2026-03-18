@@ -4,6 +4,47 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'yearbook2506secretkey123';
 
+// Fixed 26 students + 4 teachers = 30 valid emails (lowercase)
+const VALID_EMAILS = [
+  'jacob@techstarter.de',
+  'kevin@techstarter.de',
+  'katrin@techstarter.de',
+  'christiane.schwammenhoefer@techstarter.de',
+  'yavuz.ozgun@tn.techstarter.de',
+  'alex.bergheim@tn.techstarter.de',
+  'beka.kikalishvili@tn.techstarter.de',
+  'chris.little@tn.techstarter.de',
+  'david.vaupel@tn.techstarter.de',
+  'elisabeth.khalil@tn.techstarter.de',
+  'fhong.nguyen@tn.techstarter.de',
+  'florian.feddern@tn.techstarter.de',
+  'javier.aran@tn.techstarter.de',
+  'karim.kaffo@tn.techstarter.de',
+  'katharina.frame@tn.techstarter.de',
+  'katja.schulz@tn.techstarter.de',
+  'lars.appelt@tn.techstarter.de',
+  'leif.rosocha@tn.techstarter.de',
+  'lukas.behlau@tn.techstarter.de',
+  'marc.hilger@tn.techstarter.de',
+  'marcel.mikulovic@tn.techstarter.de',
+  'marina.stanic@tn.techstarter.de',
+  'marvin.stenzel@tn.techstarter.de',
+  'marvin.wueste@tn.techstarter.de',
+  'miguel.gil@tn.techstarter.de',
+  'niclas.tettinger@tn.techstarter.de',
+  'nico.britz@tn.techstarter.de',
+  'rebekka.mangelsdorf@tn.techstarter.de',
+  'reyyan.ahmad@tn.techstarter.de',
+  'tobias.hoppen@tn.techstarter.de'
+];
+
+const TEACHER_EMAILS = [
+  'jacob@techstarter.de',
+  'kevin@techstarter.de',
+  'katrin@techstarter.de',
+  'christiane.schwammenhoefer@techstarter.de'
+];
+
 // POST /api/auth/register
 exports.register = async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
@@ -16,26 +57,30 @@ exports.register = async (req, res) => {
   }
 
   try {
-    const existing = await db.query('SELECT id FROM users WHERE email = $1', [email]);
+// Normalize email - lowercase and trim
+    const normalizedEmail = email.toLowerCase().trim();
+    
+    // Check if already exists
+    const existing = await db.query('SELECT id FROM users WHERE LOWER(email) = $1', [normalizedEmail]);
     if (existing.rows.length > 0) {
       return res.status(409).json({ error: 'Diese E-Mail ist bereits registriert.' });
     }
 
+    // Determine role based on email
+    let role = 'guest';
+    if (VALID_EMAILS.includes(normalizedEmail)) {
+      role = TEACHER_EMAILS.includes(normalizedEmail) ? 'teacher' : 'student';
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Store as lowercase
     const userResult = await db.query(
       `INSERT INTO users (email, password_hash, first_name, last_name, role, is_activated)
-       VALUES ($1, $2, $3, $4, 'student', true) RETURNING *`,
-      [email, hashedPassword, firstName, lastName]
+       VALUES ($1, $2, $3, $4, $5, true) RETURNING *`,
+      [normalizedEmail, hashedPassword, firstName, lastName, role]
     );
     const user = userResult.rows[0];
-
-    await db.query(
-      `INSERT INTO students (first_name, last_name, email)
-       VALUES ($1, $2, $3)
-       ON CONFLICT DO NOTHING`,
-      [firstName, lastName, email]
-    );
 
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
@@ -69,7 +114,9 @@ exports.login = async (req, res) => {
   }
 
   try {
-    const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+    // Normalize email to lowercase for login
+    const normalizedEmail = email.toLowerCase();
+    const result = await db.query('SELECT * FROM users WHERE LOWER(email) = $1', [normalizedEmail]);
 
     if (result.rows.length === 0) {
       return res.status(403).json({ error: 'Ungültige Anmeldedaten.' });
@@ -117,7 +164,8 @@ exports.resetPassword = async (req, res) => {
   }
 
   try {
-    const result = await db.query('SELECT id FROM users WHERE email = $1', [email]);
+    const normalizedEmail = email.toLowerCase();
+    const result = await db.query('SELECT id FROM users WHERE LOWER(email) = $1', [normalizedEmail]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Kein Konto mit dieser E-Mail gefunden.' });
@@ -126,8 +174,8 @@ exports.resetPassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await db.query(
-      'UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE email = $2',
-      [hashedPassword, email]
+      'UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE LOWER(email) = $2',
+      [hashedPassword, normalizedEmail]
     );
 
     return res.status(200).json({ message: 'Passwort erfolgreich zurückgesetzt.' });

@@ -2,7 +2,7 @@ const db = require('./db');
 
 const initializeDatabase = async () => {
   try {
-    // Create tables one by one (more reliable on cloud DBs like Railway)
+    // Create tables
     await db.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -109,8 +109,7 @@ const initializeDatabase = async () => {
       `);
     }
 
-    // Seed students if empty
-    const studentCount = await db.query('SELECT COUNT(*) FROM students');
+const studentCount = await db.query('SELECT COUNT(*) FROM students');
     if (parseInt(studentCount.rows[0].count) === 0) {
       await db.query(`
         INSERT INTO students (first_name, last_name, email, bio) VALUES

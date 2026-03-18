@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,18 +10,7 @@
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <div class="book-container">
-    <div class="book">
-      <div class="page left-page"></div>
-      <div class="book-spine"></div>
-      <div class="page right-page"></div>
-    </div>
-    <div class="touch-indicator">
-      <div class="fingerprint-icon">👆</div>
-      <div class="touch-text">TOUCH TO FLIP</div>
-    </div>
-  </div>
-
-  <script src="/script.js"></script>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

@@ -1,151 +1,412 @@
 import { useState, useEffect } from 'react';
 import '../styles/yearbook.css';
 
-export default function Home() {
-  const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
-  const yearbookData = {
-    pages: [
-      {
-        side: 'left',
-        type: 'teachers',
-        title: 'KURSKADRO & LEHRER',
-        subtitle: 'DEIN KURS-TEAM',
-        teachers: [
-          { id: 1, name: 'Jacob Menge', role: 'Dozent', initials: 'JM' },
-          { id: 2, name: 'Kevin Kersten', role: 'Class Manager', initials: 'KK' },
-          { id: 3, name: 'Anna Schmidt', role: 'Mentor', initials: 'AS' },
-          { id: 4, name: 'Thomas Bauer', role: 'Assistent', initials: 'TB' },
-        ],
-        pageNumber: '04',
-      },
-      {
-        side: 'right',
-        type: 'profile',
-        title: 'STUDENTENPROFIL',
-        subtitle: 'BARIŞ AKYÜZ',
-        student: {
-          name: 'Barış Akyüz',
-          email: 'b.akyuz@email.com',
-          badge: '27 ÖĞRENCI',
-          initials: 'BA',
-          bio: 'Cloud Engineer | Linux Enthusiast',
-        },
-        messages: [
-          { author: 'AYŞE', text: 'Mükemmel proje! 2026\'s bekle!', side: 'left', time: '27/03/2026, 14:32' },
-          { author: 'BARIŞ AKYÜZ', text: 'Seninle çalışmak harikaydi!', side: 'right', time: '27/03/2026, 14:32' },
-          { author: 'CAN', text: 'Seninle çalışmak harikaydi!', side: 'left', time: '27/03/2026, 14:32' },
-          { author: 'BARIŞ AKYÜZ', text: 'Harika bir yıldı!', side: 'right', time: '27/03/2026, 14:32' },
-        ],
-        pageNumber: '05',
-      },
-    ],
-  };
+const API = '/api';
 
-  const nextPage = () => {
-    if (currentPageIndex + 2 < yearbookData.pages.length) {
-      setCurrentPageIndex(currentPageIndex + 2);
+interface Teacher {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  role: string;
+  profile_picture_url?: string;
+}
+
+interface Student {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  bio?: string;
+  profile_picture_url?: string;
+}
+
+interface Message {
+  id: number;
+  author_id: number;
+  author_name: string;
+  content: string;
+  created_at: string;
+  from_user_id?: number;
+}
+
+type Page = 'course' | 'teachers' | 'students';
+
+const TEACHER_QUOTES: Record<number, string> = {
+  1: "Code is poetry written in machine language.",
+  2: "Technology is the language of the future.",
+  3: "Innovation distinguishes between a leader and a follower.",
+  4: "The best way to predict the future is to create it."
+};
+
+function LoginPage({ onLogin }: { onLogin: () => void }) {
+  const [mode, setMode] = useState<'login' | 'register' | 'reset'>('login');
+  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', newPassword: '' });
+  const [message, setMessage] = useState({ text: '', error: false });
+  const [loading, setLoading] = useState(false);
+
+  const set = (field: string) => (e: any) => setForm((f: any) => ({ ...f, [field]: e.target.value }));
+  const msg = (text: string, error = false) => setMessage({ text, error });
+
+  const handleLogin = async (e: any) => {
+    e.preventDefault();
+    setLoading(true);
+    msg('');
+    try {
+      const res = await fetch(`${API}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.email, password: form.password })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        msg('Anmeldung erfolgreich...');
+        setTimeout(() => onLogin(), 1000);
+      } else {
+        msg(data.error || 'Anmeldung fehlgeschlagen.', true);
+      }
+    } catch {
+      msg('Anmeldung fehlgeschlagen.', true);
     }
+    setLoading(false);
   };
 
-  const prevPage = () => {
-    if (currentPageIndex > 0) {
-      setCurrentPageIndex(currentPageIndex - 2);
+  const handleRegister = async (e: any) => {
+    e.preventDefault();
+    setLoading(true);
+    msg('');
+    try {
+      const res = await fetch(`${API}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstName: form.firstName, lastName: form.lastName, email: form.email, password: form.password })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        msg('Registrierung erfolgreich...');
+        setTimeout(() => onLogin(), 1000);
+      } else {
+        msg(data.error || 'Registrierung fehlgeschlagen.', true);
+      }
+    } catch {
+      msg('Registrierung fehlgeschlagen.', true);
     }
+    setLoading(false);
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') nextPage();
-      if (e.key === 'ArrowLeft') prevPage();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentPageIndex]);
-
-  const leftPageData = yearbookData.pages[currentPageIndex];
-  const rightPageData = currentPageIndex + 1 < yearbookData.pages.length ? yearbookData.pages[currentPageIndex + 1] : null;
+  const handleReset = async (e: any) => {
+    e.preventDefault();
+    setLoading(true);
+    msg('');
+    try {
+      const res = await fetch(`${API}/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.email, newPassword: form.newPassword })
+      });
+      if (res.ok) {
+        msg('Passwort erfolgreich zurueckgesetzt!');
+        setTimeout(() => { setMode('login'); msg(''); }, 2500);
+      } else {
+        msg('Fehler beim Zuruecksetzen.', true);
+      }
+    } catch {
+      msg('Fehler beim Zuruecksetzen.', true);
+    }
+    setLoading(false);
+  };
 
   return (
-    <div className="book-container">
-      <div className="book">
-        {/* LEFT PAGE */}
-        <div className="page left-page" onClick={prevPage}>
-          {leftPageData && (
-            <>
-              <div className="section-title">{leftPageData.title}</div>
-              <div className="section-subtitle">{leftPageData.subtitle}</div>
+    <div className="lp-root">
+      <div className="lp-stars" aria-hidden="true">
+        {Array.from({ length: 80 }, (_, i) => (
+          <div key={i} className="lp-star" style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            width: Math.random() * 2 + 0.5,
+            height: Math.random() * 2 + 0.5,
+            animationDelay: `${Math.random() * 5}s`,
+          }} />
+        ))}
+      </div>
+      <div className="lp-glow-teal" />
+      <div className="lp-glow-purple" />
+      <div className="lp-card">
+        <div className="lp-header">
+          <div className="lp-logo">EON</div>
+          <div className="lp-title">Jahrbuch 25-06</div>
+          <div className="lp-subtitle">Agile Softwareentwicklung · Linux & Cloud</div>
+        </div>
+        {mode !== 'reset' && (
+          <div className="lp-tabs">
+            <button className={`lp-tab ${mode === 'login' ? 'active' : ''}`} onClick={() => { setMode('login'); msg(''); }}>Anmelden</button>
+            <button className={`lp-tab ${mode === 'register' ? 'active' : ''}`} onClick={() => { setMode('register'); msg(''); }}>Registrieren</button>
+          </div>
+        )}
+        {mode === 'login' && (
+          <form className="lp-form" onSubmit={handleLogin}>
+            <div className="lp-field">
+              <label className="lp-label">E-Mail</label>
+              <input className="lp-input" type="email" placeholder="deine@email.de" value={form.email} onChange={set('email')} required />
+            </div>
+            <div className="lp-field">
+              <label className="lp-label">Passwort</label>
+              <input className="lp-input" type="password" placeholder="........" value={form.password} onChange={set('password')} required />
+            </div>
+            <button className="lp-btn" type="submit" disabled={loading}>Anmelden ›</button>
+            <p className="lp-switch">Noch kein Konto? <span onClick={() => { setMode('register'); msg(''); }}>Jetzt registrieren</span></p>
+            <p className="lp-switch">Passwort vergessen? <span onClick={() => { setMode('reset'); msg(''); setForm({ ...form, email: '', newPassword: '' }); }}>Zuruecksetzen</span></p>
+          </form>
+        )}
+        {mode === 'register' && (
+          <form className="lp-form" onSubmit={handleRegister}>
+            <div className="lp-row">
+              <div className="lp-field">
+                <label className="lp-label">Vorname</label>
+                <input className="lp-input" type="text" placeholder="Max" value={form.firstName} onChange={set('firstName')} required />
+              </div>
+              <div className="lp-field">
+                <label className="lp-label">Nachname</label>
+                <input className="lp-input" type="text" placeholder="Mustermann" value={form.lastName} onChange={set('lastName')} required />
+              </div>
+            </div>
+            <div className="lp-field">
+              <label className="lp-label">E-Mail</label>
+              <input className="lp-input" type="email" placeholder="deine@email.de" value={form.email} onChange={set('email')} required />
+            </div>
+            <div className="lp-field">
+              <label className="lp-label">Passwort <span className="lp-hint">(min. 6 Zeichen)</span></label>
+              <input className="lp-input" type="password" placeholder="........" value={form.password} onChange={set('password')} required minLength={6} />
+            </div>
+            <button className="lp-btn" type="submit" disabled={loading}>Konto erstellen ›</button>
+            <p className="lp-switch">Bereits registriert? <span onClick={() => { setMode('login'); msg(''); }}>Anmelden</span></p>
+          </form>
+        )}
+        {mode === 'reset' && (
+          <form className="lp-form" onSubmit={handleReset}>
+            <div className="lp-reset-title">Passwort zuruecksetzen</div>
+            <div className="lp-field">
+              <label className="lp-label">E-Mail</label>
+              <input className="lp-input" type="email" placeholder="deine@email.de" value={form.email} onChange={set('email')} required />
+            </div>
+            <div className="lp-field">
+              <label className="lp-label">Neues Passwort <span className="lp-hint">(min. 6 Zeichen)</span></label>
+              <input className="lp-input" type="password" placeholder="........" value={form.newPassword} onChange={set('newPassword')} required minLength={6} />
+            </div>
+            <button className="lp-btn" type="submit" disabled={loading}>Passwort aendern ›</button>
+            <p className="lp-switch"><span onClick={() => { setMode('login'); msg(''); }}>Zurueck zur Anmeldung</span></p>
+          </form>
+        )}
+        {message.text && <div className={`lp-msg ${message.error ? 'lp-msg-error' : 'lp-msg-success'}`}>{message.text}</div>}
+      </div>
+    </div>
+  );
+}
 
-              {leftPageData.type === 'teachers' && leftPageData.teachers && (
-                <div className="teacher-list">
-                  {leftPageData.teachers.map((teacher) => (
-                    <div key={teacher.id} className="teacher-card">
-                      <div className="avatar">{teacher.initials}</div>
-                      <div className="teacher-info">
-                        <div className="teacher-name">{teacher.name}</div>
-                        <div className="teacher-role">{teacher.role}</div>
-                      </div>
-                    </div>
-                  ))}
+function CourseInfoPage() {
+  return (
+    <div className="content-page">
+      <div className="section-label">ÜBER DEN KURS</div>
+      <h1 className="course-title">Klasse 25-06</h1>
+      <div className="course-line"></div>
+      <div className="info-grid">
+        <div className="info-item"><span className="info-label">KURS</span><span className="info-value">Agile Softwareentwicklung</span></div>
+        <div className="info-item"><span className="info-label">SCHWERPUNKT</span><span className="info-value">Linux & Cloud Engineering</span></div>
+        <div className="info-item"><span className="info-label">ZEITRAUM</span><span className="info-value">Juni 2025 – März 2026</span></div>
+        <div className="info-item"><span className="info-label">INSTITUT</span><span className="info-value">Syntax Institut</span></div>
+      </div>
+      <div className="course-quote">„Wer die Cloud beherrscht,<br/>gestaltet die digitale Zukunft."<em>— Syntax Institut</em></div>
+    </div>
+  );
+}
+
+function TeacherProfile({ teacher, messages, onBack, onSendMessage, currentUserId, onDeleteMessage, onUpdateMessage }: { teacher: Teacher, messages: Message[], onBack: () => void, onSendMessage: (content: string) => void, currentUserId?: number, onDeleteMessage?: (id: number) => void, onUpdateMessage?: (id: number, content: string) => void }) {
+  const [message, setMessage] = useState('');
+  const quote = TEACHER_QUOTES[teacher.id] || "Technology shapes the future.";
+  const handleSend = (e: any) => { e.preventDefault(); if (message.trim()) { onSendMessage(message); setMessage(''); } };
+  return (
+    <div className="content-page profile-page">
+      <button className="back-btn" onClick={onBack}>← ZURÜCK</button>
+      <div className="profile-header">
+        <div className="profile-avatar large">{teacher.profile_picture_url ? <img src={`/images/${teacher.profile_picture_url}`} alt={teacher.first_name} /> : <span className="initials">{teacher.first_name[0]}{teacher.last_name[0]}</span>}</div>
+        <div className="profile-info">
+          <div className="profile-name bright">{teacher.first_name} {teacher.last_name}</div>
+          <div className="profile-role bright">{teacher.role}</div>
+          <div className="profile-email bright">{teacher.email}</div>
+        </div>
+      </div>
+      <div className="teacher-quote-section"><div className="section-label">MOTTO</div><div className="teacher-quote">„{quote}"</div></div>
+      <div className="messages-section">
+        <div className="section-label">GEDANKEN & REAKTIONEN</div>
+        <div className="messages-list">{messages.length === 0 ? <div className="no-messages">Noch keine Nachrichten</div> : messages.map((m) => (
+          <div key={m.id} className="message-bubble">
+            <div className="msg-avatar">{m.author_name.substring(0,2)}</div>
+            <div className="msg-content">
+              <div className="msg-author">{m.author_name}</div>
+              <div className="msg-text">{m.content}</div>
+              {currentUserId === m.from_user_id && (
+                <div className="msg-actions">
+                  <button className="msg-action-btn" onClick={() => onUpdateMessage && onUpdateMessage(m.id, m.content)}>✏️</button>
+                  <button className="msg-action-btn" onClick={() => onDeleteMessage && onDeleteMessage(m.id)}>🗑️</button>
                 </div>
               )}
-
-              <div className="page-number">{leftPageData.pageNumber}</div>
-            </>
-          )}
+            </div>
+          </div>
+        ))}
         </div>
+        <form className="message-form" onSubmit={handleSend}><input type="text" placeholder="Nachricht schreiben..." value={message} onChange={(e: any) => setMessage(e.target.value)} className="msg-input" /><button type="submit" className="msg-send">SENDEN</button></form>
+      </div>
+    </div>
+  );
+}
 
-        {/* BOOK SPINE */}
-        <div className="book-spine"></div>
+function TeachersPage({ teachers, onSelectTeacher }: { teachers: Teacher[], onSelectTeacher: (teacher: Teacher) => void }) {
+  return (
+    <div className="content-page">
+      <div className="section-label">TEAM & LEHRKOLLEGIUM 2026</div>
+      <div className="teachers-grid">{teachers.map((t) => <div key={t.id} className="teacher-card" onClick={() => onSelectTeacher(t)}><div className="avatar large">{t.profile_picture_url ? <img src={`/images/${t.profile_picture_url}`} alt={t.first_name} /> : <span className="initials">{t.first_name[0]}{t.last_name[0]}</span>}</div><div className="name bright">{t.first_name} {t.last_name}</div><div className="role bright">{t.role}</div><div className="email bright">{t.email}</div><div className="card-motto">{TEACHER_QUOTES[t.id] || "Technology shapes the future."}</div></div>)}</div>
+    </div>
+  );
+}
 
-        {/* RIGHT PAGE */}
-        <div className="page right-page" onClick={nextPage}>
-          {rightPageData && (
-            <>
-              <div className="section-title">{rightPageData.title}</div>
-              <div className="section-subtitle">{rightPageData.subtitle}</div>
-
-              {rightPageData.type === 'profile' && rightPageData.student && rightPageData.messages && (
-                <>
-                  <div className="profile-hero">
-                    <div className="avatar purple">{rightPageData.student.initials}</div>
-                    <div className="profile-info">
-                      <div className="profile-name">{rightPageData.student.name}</div>
-                      <div className="profile-email">{rightPageData.student.email}</div>
-                      {rightPageData.student.bio && <div className="profile-bio">{rightPageData.student.bio}</div>}
-                      <div className="profile-badge">{rightPageData.student.badge}</div>
-                    </div>
-                  </div>
-
-                  <div className="message-label">NACHRICHTEN</div>
-                  <div className="messages-container">
-                    {rightPageData.messages?.map((msg, idx) => (
-                      <div key={idx} className={`message-bubble ${msg.side}`}>
-                        <div className={`avatar ${msg.side === 'left' ? '' : 'purple'}`} style={{ width: '32px', height: '32px', fontSize: '12px' }}>
-                          {msg.author.substring(0, 2)}
-                        </div>
-                        <div className="message-content">
-                          <div className="message-author">{msg.author}</div>
-                          <div>{msg.text}</div>
-                          <div className="message-time">{msg.time}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-
-              <div className="page-number">{rightPageData.pageNumber}</div>
-            </>
-          )}
+function StudentProfile({ student, messages, onBack, onSendMessage }: { student: Student, messages: Message[], onBack: () => void, onSendMessage: (content: string) => void }) {
+  const [message, setMessage] = useState('');
+  const handleSend = (e: any) => { e.preventDefault(); if (message.trim()) { onSendMessage(message); setMessage(''); } };
+  return (
+    <div className="content-page profile-page">
+      <button className="back-btn" onClick={onBack}>← ZURÜCK</button>
+      <div className="profile-header">
+        <div className="profile-avatar large">{student.profile_picture_url ? <img src={`/images/${student.profile_picture_url}`} alt={student.first_name} /> : <span className="initials">{student.first_name[0]}{student.last_name[0]}</span>}</div>
+        <div className="profile-info">
+          <div className="profile-name bright">{student.first_name} {student.last_name}</div>
+          <div className="profile-email bright">{student.email}</div>
+          {student.bio && <div className="profile-bio bright">„{student.bio}"</div>}
         </div>
       </div>
-
-      {/* TOUCH INDICATOR */}
-      <div className="touch-indicator">
-        <div className="fingerprint-icon">👆</div>
-        <div className="touch-text">TOUCH TO FLIP</div>
+      <div className="messages-section">
+        <div className="section-label">GEDANKEN & REAKTIONEN</div>
+        <div className="messages-list">{messages.length === 0 ? <div className="no-messages">Noch keine Nachrichten</div> : messages.map((m) => <div key={m.id} className="message-bubble"><div className="msg-avatar">{m.author_name.substring(0,2)}</div><div className="msg-content"><div className="msg-author">{m.author_name}</div><div className="msg-text">{m.content}</div></div></div>)}</div>
+        <form className="message-form" onSubmit={handleSend}><input type="text" placeholder="Nachricht schreiben..." value={message} onChange={(e: any) => setMessage(e.target.value)} className="msg-input" /><button type="submit" className="msg-send">SENDEN</button></form>
       </div>
+    </div>
+  );
+}
+
+function StudentsPage({ students, currentPage, totalPages, onPageChange, onSelectStudent }: { students: Student[], currentPage: number, totalPages: number, onPageChange: (page: number) => void, onSelectStudent: (student: Student) => void }) {
+  return (
+    <div className="content-page">
+      <div className="section-label">UNSERE KLASSE</div>
+      <div className="students-grid">{students.map((s) => <div key={s.id} className="student-card" onClick={() => onSelectStudent(s)}><div className="avatar">{s.profile_picture_url ? <img src={`/images/${s.profile_picture_url}`} alt={s.first_name} /> : <span className="initials">{s.first_name[0]}{s.last_name[0]}</span>}</div><div className="name bright">{s.first_name} {s.last_name}</div><div className="card-email bright">{s.email}</div>{s.bio && <div className="card-motto">{s.bio}</div>}</div>)}</div>
+      {totalPages > 1 && <div className="pagination"><button className="page-btn" onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 0}>◀</button><span className="page-num">{currentPage + 1} / {totalPages}</span><button className="page-btn" onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages - 1}>▶</button></div>}
+    </div>
+  );
+}
+
+export default function Home() {
+  const [page, setPage] = useState<Page>('course');
+  const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [studentPage, setStudentPage] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<number | undefined>(undefined);
+
+  const studentsPerPage = 9;
+  const validStudents = students.slice(0, 26);
+  const totalStudentPages = Math.ceil(validStudents.length / studentsPerPage);
+  const currentStudents = validStudents.slice(studentPage * studentsPerPage, (studentPage + 1) * studentsPerPage);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    if (token && userData) { setIsLoggedIn(true); fetchData(); } else { setLoading(false); }
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [teachersRes, studentsRes] = await Promise.all([fetch(`${API}/yearbook/teachers`), fetch(`${API}/yearbook/students`)]);
+      const teachersData = await teachersRes.json();
+      const studentsData = await studentsRes.json();
+      setTeachers(teachersData); setStudents(studentsData); setLoading(false);
+    } catch { setLoading(false); }
+  };
+
+  const fetchTeacherMessages = async (teacherId: number) => { try { const res = await fetch(`${API}/yearbook/messages/teacher/${teacherId}`); setMessages(await res.json()); } catch { console.error('error'); } };
+  const fetchStudentMessages = async (studentId: number) => { try { const res = await fetch(`${API}/yearbook/messages/student/${studentId}`); setMessages(await res.json()); } catch { console.error('error'); } };
+
+  const handleLogin = () => { 
+    const userData = localStorage.getItem('user'); 
+    if (userData) { 
+      const user = JSON.parse(userData);
+      setCurrentUserId(user.id);
+      setIsLoggedIn(true); 
+      setPage('course'); 
+      fetchData(); 
+    } 
+  };
+  const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); setIsLoggedIn(false); setPage('course'); setSelectedTeacher(null); setSelectedStudent(null); };
+  const handleSelectTeacher = (teacher: Teacher) => { setSelectedTeacher(teacher); fetchTeacherMessages(teacher.id); };
+  const handleBackFromTeacher = () => { setSelectedTeacher(null); setMessages([]); };
+  const handleSelectStudent = (student: Student) => { setSelectedStudent(student); fetchStudentMessages(student.id); };
+  const handleBackFromStudent = () => { setSelectedStudent(null); setMessages([]); };
+
+  const handleSendMessage = async (content: string) => {
+    try {
+      const endpoint = selectedStudent ? `${API}/yearbook/messages/student/${selectedStudent.id}` : `${API}/yearbook/messages/teacher/${selectedTeacher?.id}`;
+      const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` }, body: JSON.stringify({ content }) });
+      if (res.ok) { if (selectedStudent) fetchStudentMessages(selectedStudent.id); else if (selectedTeacher) fetchTeacherMessages(selectedTeacher.id); }
+    } catch { console.error('error'); }
+  };
+
+  const handleDeleteMessage = async (messageId: number) => {
+    if (!confirm('Nachricht loeschen?')) return;
+    try {
+      const res = await fetch(`${API}/yearbook/messages/${messageId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+      if (res.ok) { if (selectedStudent) fetchStudentMessages(selectedStudent.id); else if (selectedTeacher) fetchTeacherMessages(selectedTeacher.id); }
+    } catch { console.error('error'); }
+  };
+
+  const handleUpdateMessage = async (messageId: number, currentContent: string) => {
+    const newContent = prompt('Nachricht bearbeiten:', currentContent);
+    if (!newContent || newContent === currentContent) return;
+    try {
+      const res = await fetch(`${API}/yearbook/messages/${messageId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` }, body: JSON.stringify({ content: newContent }) });
+      if (res.ok) { if (selectedStudent) fetchStudentMessages(selectedStudent.id); else if (selectedTeacher) fetchTeacherMessages(selectedTeacher.id); }
+    } catch { console.error('error'); }
+  };
+
+  const nextPage = () => { if (selectedTeacher || selectedStudent) return; const pages: Page[] = ['course', 'teachers', 'students']; const idx = pages.indexOf(page); if (idx < pages.length - 1) { setPage(pages[idx + 1]); setStudentPage(0); } };
+  const prevPage = () => { if (selectedTeacher || selectedStudent) return; const pages: Page[] = ['course', 'teachers', 'students']; const idx = pages.indexOf(page); if (idx > 0) { setPage(pages[idx - 1]); setStudentPage(0); } };
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (!isLoggedIn) return; if (selectedTeacher || selectedStudent) { if (e.key === 'Escape') { if (selectedTeacher) handleBackFromTeacher(); if (selectedStudent) handleBackFromStudent(); } return; } if (e.key === 'ArrowRight') nextPage(); if (e.key === 'ArrowLeft') prevPage(); };
+    window.addEventListener('keydown', handleKey); return () => window.removeEventListener('keydown', handleKey);
+  }, [page, isLoggedIn, selectedTeacher, selectedStudent]);
+
+  if (loading) return <div className="loading">LÄDT...</div>;
+  if (!isLoggedIn) return <LoginPage onLogin={handleLogin} />;
+
+  const pages: Page[] = ['course', 'teachers', 'students'];
+  const currentIndex = pages.indexOf(page);
+
+  return (
+    <div className="app">
+      <header className="header"><div className="logo">EON JAHRBUCH 25-06</div><button className="logout-btn" onClick={handleLogout}>LOGOUT</button></header>
+      <main className="main">
+        <button className="nav-btn" onClick={prevPage} disabled={currentIndex === 0 || selectedTeacher !== null || selectedStudent !== null}>◀</button>
+        <div className="content">
+          {selectedTeacher ? <TeacherProfile teacher={selectedTeacher} messages={messages} onBack={handleBackFromTeacher} onSendMessage={handleSendMessage} currentUserId={currentUserId} onDeleteMessage={handleDeleteMessage} onUpdateMessage={handleUpdateMessage} /> : selectedStudent ? <StudentProfile student={selectedStudent} messages={messages} onBack={handleBackFromStudent} onSendMessage={handleSendMessage} /> : page === 'course' ? <CourseInfoPage /> : page === 'teachers' ? <TeachersPage teachers={teachers} onSelectTeacher={handleSelectTeacher} /> : <StudentsPage students={currentStudents} currentPage={studentPage} totalPages={totalStudentPages} onPageChange={setStudentPage} onSelectStudent={handleSelectStudent} />}
+        </div>
+        <button className="nav-btn" onClick={nextPage} disabled={currentIndex === pages.length - 1 || selectedTeacher !== null || selectedStudent !== null}>▶</button>
+      </main>
     </div>
   );
 }

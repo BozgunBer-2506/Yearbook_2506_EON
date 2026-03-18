@@ -96,4 +96,45 @@ router.post('/messages/teacher/:id', verifyToken, async (req, res) => {
     }
 });
 
+// DELETE message (only author can delete)
+router.delete('/messages/:id', verifyToken, async (req, res) => {
+    try {
+        const result = await db.query('SELECT from_user_id FROM messages WHERE id = $1', [req.params.id]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Nachricht nicht gefunden.' });
+        }
+        if (result.rows[0].from_user_id !== req.user.userId) {
+            return res.status(403).json({ error: 'Du kannst nur deine eigenen Nachrichten löschen.' });
+        }
+        await db.query('DELETE FROM messages WHERE id = $1', [req.params.id]);
+        res.status(200).json({ message: 'Nachricht gelöscht.' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// UPDATE message (only author can update)
+router.put('/messages/:id', verifyToken, async (req, res) => {
+    const { content } = req.body;
+    if (!content || content.trim() === '') {
+        return res.status(400).json({ error: 'Nachricht darf nicht leer sein.' });
+    }
+    try {
+        const result = await db.query('SELECT from_user_id FROM messages WHERE id = $1', [req.params.id]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Nachricht nicht gefunden.' });
+        }
+        if (result.rows[0].from_user_id !== req.user.userId) {
+            return res.status(403).json({ error: 'Du kannst nur deine eigenen Nachrichten bearbeiten.' });
+        }
+        const update = await db.query(
+            'UPDATE messages SET content = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *',
+            [content.trim(), req.params.id]
+        );
+        res.status(200).json(update.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
