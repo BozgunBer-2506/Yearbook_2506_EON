@@ -16,10 +16,7 @@ Path = "/health"
 
 [[services]]
 name = "client"
-source = "yearbook-v2"
-
-[services.build]
-buildCommand = "pnpm install && pnpm build"
+dockerfile = "yearbook-v2/Dockerfile"
 
 [services.deploy]
 startCommand = "npx serve dist/public -l $PORT"
