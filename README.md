@@ -1,34 +1,51 @@
 # Yearbook 2506 EON
 
-Full-stack Digital Flipbook für die Klasse 25-06.
+Full-stack Digital Yearbook für die Klasse 25-06.
 
 ## Tech Stack
 
-- Frontend: React.js
+- Frontend: React + Vite + TypeScript + Tailwind CSS
 - Backend: Node.js + Express
-- Database: PostgreSQL 15
-- Containerization: Docker + Docker Compose
+- Database: PostgreSQL (Railway)
+- Deployment: Railway
 
-## Setup
+## Local Development
 
-docker-compose up -d
+### Backend
 
-## Services
-- Frontend: http://localhost:3000
-- Backend: http://localhost:5000
-- API Docs: http://localhost:5000/api-docs
-- Database: localhost:5433
+```bash
+cd server
+npm install
+npm start
+```
+
+→ http://localhost:5000
+
+### Frontend
+
+```bash
+cd yearbook-v2
+pnpm install
+pnpm dev
+```
+
+→ http://localhost:3001
+
+## Production
+
+- Frontend: https://yearbook2506eon-production.up.railway.app
+- Backend: Railway (private)
+- Database: Railway PostgreSQL
 
 ## Features
 
 - User Authentication (JWT)
 - Student & Teacher Profiles
-- Messages
-- Digital Yearbook
+- Holographic Yearbook UI
+- Messages / Reactions
 
-## Database Tables
+## Roles
 
-- users
-- students
-- teachers
-- messages
+- teacher: Jacob, Kevin, Katrin, Christiane
+- student: 26 Teilnehmer
+- guest: andere
