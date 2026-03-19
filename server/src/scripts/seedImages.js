@@ -65,7 +65,7 @@ async function seedImages() {
     console.log(`\nUpdating ${students.rows.length} students with robohash images...`);
 
     for (const student of students.rows) {
-      const robohashUrl = `https://robohash.org/${student.email}?set=set4&size=150x150`;
+      const robohashUrl = `https://robohash.org/${student.email}?set=set5&size=150x150`;
       await db.query(
         'UPDATE students SET profile_picture_url = $1 WHERE id = $2',
         [robohashUrl, student.id]

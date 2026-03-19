@@ -535,7 +535,14 @@ body {
   font-style: italic;
   opacity: 0.8;
   margin-top: 8px;
-  color: #94a3b8;
+}
+
+.message-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 /* Profile Info Colors - Blue & White for IT look */

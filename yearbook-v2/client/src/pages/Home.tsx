@@ -232,10 +232,15 @@ function CourseInfoPage() {
   );
 }
 
+const MESSAGES_PER_PAGE = 10;
+
 function TeacherProfile({ teacher, messages, onBack, onSendMessage, currentUserId, onDeleteMessage, onUpdateMessage }: { teacher: Teacher, messages: Message[], onBack: () => void, onSendMessage: (content: string) => void, currentUserId?: number, onDeleteMessage?: (id: number) => void, onUpdateMessage?: (id: number, content: string) => void }) {
   const [message, setMessage] = useState('');
+  const [messagePage, setMessagePage] = useState(1);
   const quote = TEACHER_QUOTES[teacher.id] || "Technology shapes the future.";
-  const handleSend = (e: any) => { e.preventDefault(); if (message.trim()) { onSendMessage(message); setMessage(''); } };
+  const handleSend = (e: any) => { e.preventDefault(); if (message.trim()) { onSendMessage(message); setMessage(''); setMessagePage(1); } };
+  const totalMsgPages = Math.ceil(messages.length / MESSAGES_PER_PAGE);
+  const paginatedMessages = messages.slice((messagePage - 1) * MESSAGES_PER_PAGE, messagePage * MESSAGES_PER_PAGE);
   return (
     <div className="content-page profile-page">
       <button className="back-btn" onClick={onBack}>← ZURÜCK</button>
@@ -250,7 +255,7 @@ function TeacherProfile({ teacher, messages, onBack, onSendMessage, currentUserI
       <div className="teacher-quote-section"><div className="section-label">MOTTO</div><div className="teacher-quote">„{quote}"</div></div>
       <div className="messages-section">
         <div className="section-label">GEDANKEN & REAKTIONEN</div>
-        <div className="messages-list">{messages.length === 0 ? <div className="no-messages">Noch keine Nachrichten</div> : messages.map((m) => (
+        <div className="messages-list">{messages.length === 0 ? <div className="no-messages">Noch keine Nachrichten</div> : paginatedMessages.map((m) => (
           <div key={m.id} className="message-bubble">
             <div className="msg-avatar">{m.author_name.substring(0,2)}</div>
             <div className="msg-content">
@@ -266,6 +271,7 @@ function TeacherProfile({ teacher, messages, onBack, onSendMessage, currentUserI
           </div>
         ))}
         </div>
+        {totalMsgPages > 1 && <div className="message-pagination"><button className="page-btn" onClick={() => setMessagePage(messagePage - 1)} disabled={messagePage === 1}>◀</button><span className="page-num">{messagePage} / {totalMsgPages}</span><button className="page-btn" onClick={() => setMessagePage(messagePage + 1)} disabled={messagePage === totalMsgPages}>▶</button></div>}
         <form className="message-form" onSubmit={handleSend}><input type="text" placeholder="Nachricht schreiben..." value={message} onChange={(e: any) => setMessage(e.target.value)} className="msg-input" /><button type="submit" className="msg-send">SENDEN</button></form>
       </div>
     </div>
@@ -281,9 +287,12 @@ function TeachersPage({ teachers, onSelectTeacher }: { teachers: Teacher[], onSe
   );
 }
 
-function StudentProfile({ student, messages, onBack, onSendMessage }: { student: Student, messages: Message[], onBack: () => void, onSendMessage: (content: string) => void }) {
+function StudentProfile({ student, messages, onBack, onSendMessage, currentUserId, onDeleteMessage, onUpdateMessage }: { student: Student, messages: Message[], onBack: () => void, onSendMessage: (content: string) => void, currentUserId?: number, onDeleteMessage?: (id: number) => void, onUpdateMessage?: (id: number, content: string) => void }) {
   const [message, setMessage] = useState('');
-  const handleSend = (e: any) => { e.preventDefault(); if (message.trim()) { onSendMessage(message); setMessage(''); } };
+  const [messagePage, setMessagePage] = useState(1);
+  const handleSend = (e: any) => { e.preventDefault(); if (message.trim()) { onSendMessage(message); setMessage(''); setMessagePage(1); } };
+  const totalMsgPages = Math.ceil(messages.length / MESSAGES_PER_PAGE);
+  const paginatedMessages = messages.slice((messagePage - 1) * MESSAGES_PER_PAGE, messagePage * MESSAGES_PER_PAGE);
   return (
     <div className="content-page profile-page">
       <button className="back-btn" onClick={onBack}>← ZURÜCK</button>
@@ -297,7 +306,8 @@ function StudentProfile({ student, messages, onBack, onSendMessage }: { student:
       </div>
       <div className="messages-section">
         <div className="section-label">GEDANKEN & REAKTIONEN</div>
-        <div className="messages-list">{messages.length === 0 ? <div className="no-messages">Noch keine Nachrichten</div> : messages.map((m) => <div key={m.id} className="message-bubble"><div className="msg-avatar">{m.author_name.substring(0,2)}</div><div className="msg-content"><div className="msg-author">{m.author_name}</div><div className="msg-text">{m.content}</div></div></div>)}</div>
+        <div className="messages-list">{messages.length === 0 ? <div className="no-messages">Noch keine Nachrichten</div> : paginatedMessages.map((m) => <div key={m.id} className="message-bubble"><div className="msg-avatar">{m.author_name.substring(0,2)}</div><div className="msg-content"><div className="msg-author">{m.author_name}</div><div className="msg-text">{m.content}</div>{currentUserId === m.from_user_id && <div className="msg-actions"><button className="msg-action-btn" onClick={() => onUpdateMessage && onUpdateMessage(m.id, m.content)}>✏️</button><button className="msg-action-btn" onClick={() => onDeleteMessage && onDeleteMessage(m.id)}>🗑️</button></div>}</div></div>)}</div>
+        {totalMsgPages > 1 && <div className="message-pagination"><button className="page-btn" onClick={() => setMessagePage(messagePage - 1)} disabled={messagePage === 1}>◀</button><span className="page-num">{messagePage} / {totalMsgPages}</span><button className="page-btn" onClick={() => setMessagePage(messagePage + 1)} disabled={messagePage === totalMsgPages}>▶</button></div>}
         <form className="message-form" onSubmit={handleSend}><input type="text" placeholder="Nachricht schreiben..." value={message} onChange={(e: any) => setMessage(e.target.value)} className="msg-input" /><button type="submit" className="msg-send">SENDEN</button></form>
       </div>
     </div>
@@ -342,20 +352,21 @@ export default function Home() {
       const [teachersRes, studentsRes] = await Promise.all([fetch(`${API}/yearbook/teachers`), fetch(`${API}/yearbook/students`)]);
       const teachersData = await teachersRes.json();
       const studentsData = await studentsRes.json();
-      setTeachers(teachersData); setStudents(studentsData);
+      setTeachers(teachersData);
+      setStudents(studentsData);
+      setLoading(false);
       // Restore last viewed profile after page refresh
       const saved = localStorage.getItem('currentView');
       if (saved) {
         const { type, id } = JSON.parse(saved);
         if (type === 'teacher') {
           const t = teachersData.find((x: Teacher) => x.id === id);
-          if (t) { setSelectedTeacher(t); setPage('teachers'); }
+          if (t) { setSelectedTeacher(t); setPage('teachers'); fetchTeacherMessages(id); }
         } else if (type === 'student') {
           const s = studentsData.find((x: Student) => x.id === id);
-          if (s) { setSelectedStudent(s); setPage('students'); }
+          if (s) { setSelectedStudent(s); setPage('students'); fetchStudentMessages(id); }
         }
       }
-      setLoading(false);
     } catch { setLoading(false); }
   };
 
@@ -423,7 +434,7 @@ export default function Home() {
       <main className="main">
         <button className="nav-btn" onClick={prevPage} disabled={currentIndex === 0 || selectedTeacher !== null || selectedStudent !== null}>◀</button>
         <div className="content">
-          {selectedTeacher ? <TeacherProfile teacher={selectedTeacher} messages={messages} onBack={handleBackFromTeacher} onSendMessage={handleSendMessage} currentUserId={currentUserId} onDeleteMessage={handleDeleteMessage} onUpdateMessage={handleUpdateMessage} /> : selectedStudent ? <StudentProfile student={selectedStudent} messages={messages} onBack={handleBackFromStudent} onSendMessage={handleSendMessage} /> : page === 'course' ? <CourseInfoPage /> : page === 'teachers' ? <TeachersPage teachers={teachers} onSelectTeacher={handleSelectTeacher} /> : <StudentsPage students={currentStudents} currentPage={studentPage} totalPages={totalStudentPages} onPageChange={setStudentPage} onSelectStudent={handleSelectStudent} />}
+          {selectedTeacher ? <TeacherProfile teacher={selectedTeacher} messages={messages} onBack={handleBackFromTeacher} onSendMessage={handleSendMessage} currentUserId={currentUserId} onDeleteMessage={handleDeleteMessage} onUpdateMessage={handleUpdateMessage} /> : selectedStudent ? <StudentProfile student={selectedStudent} messages={messages} onBack={handleBackFromStudent} onSendMessage={handleSendMessage} currentUserId={currentUserId} onDeleteMessage={handleDeleteMessage} onUpdateMessage={handleUpdateMessage} /> : page === 'course' ? <CourseInfoPage /> : page === 'teachers' ? <TeachersPage teachers={teachers} onSelectTeacher={handleSelectTeacher} /> : <StudentsPage students={currentStudents} currentPage={studentPage} totalPages={totalStudentPages} onPageChange={setStudentPage} onSelectStudent={handleSelectStudent} />}
         </div>
         <button className="nav-btn" onClick={nextPage} disabled={currentIndex === pages.length - 1 || selectedTeacher !== null || selectedStudent !== null}>▶</button>
       </main>
