@@ -60,18 +60,10 @@ async function seedImages() {
       }
     }
 
-    // 4. Update all students with robohash URLs
-    const students = await db.query('SELECT id, email FROM students');
-    console.log(`\nUpdating ${students.rows.length} students with robohash images...`);
-
-    for (const student of students.rows) {
-      const robohashUrl = `https://robohash.org/${student.email}?set=set5&size=150x150`;
-      await db.query(
-        'UPDATE students SET profile_picture_url = $1 WHERE id = $2',
-        [robohashUrl, student.id]
-      );
-      console.log(`✓ Updated student: ${student.email}`);
-    }
+    // 4. Clear all student avatars - use initials instead
+    await db.query('UPDATE students SET profile_picture_url = NULL');
+    const studentCount = await db.query('SELECT COUNT(*) FROM students');
+    console.log(`\n✓ Cleared profile_picture_url for ${studentCount.rows[0].count} students (initials will be shown)`);
 
     console.log('\n✅ Image seed completed successfully!');
   } catch (error) {
