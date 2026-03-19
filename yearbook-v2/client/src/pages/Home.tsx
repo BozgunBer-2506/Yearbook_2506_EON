@@ -259,14 +259,16 @@ function TeacherProfile({ teacher, messages, onBack, onSendMessage, currentUserI
           <div key={m.id} className="message-bubble">
             <div className="msg-avatar">{m.author_name.substring(0,2)}</div>
             <div className="msg-content">
-              <div className="msg-author">{m.author_name}</div>
+              <div className="msg-header-row">
+                <div className="msg-author">{m.author_name}</div>
+                {currentUserId === m.from_user_id && (
+                  <div className="msg-actions">
+                    <button className="msg-action-btn" onClick={() => onUpdateMessage && onUpdateMessage(m.id, m.content)}>✏️</button>
+                    <button className="msg-action-btn" onClick={() => onDeleteMessage && onDeleteMessage(m.id)}>🗑️</button>
+                  </div>
+                )}
+              </div>
               <div className="msg-text">{m.content}</div>
-              {currentUserId === m.from_user_id && (
-                <div className="msg-actions">
-                  <button className="msg-action-btn" onClick={() => onUpdateMessage && onUpdateMessage(m.id, m.content)}>✏️</button>
-                  <button className="msg-action-btn" onClick={() => onDeleteMessage && onDeleteMessage(m.id)}>🗑️</button>
-                </div>
-              )}
             </div>
           </div>
         ))}
@@ -306,7 +308,7 @@ function StudentProfile({ student, messages, onBack, onSendMessage, currentUserI
       </div>
       <div className="messages-section">
         <div className="section-label">GEDANKEN & REAKTIONEN</div>
-        <div className="messages-list">{messages.length === 0 ? <div className="no-messages">Noch keine Nachrichten</div> : paginatedMessages.map((m) => <div key={m.id} className="message-bubble"><div className="msg-avatar">{m.author_name.substring(0,2)}</div><div className="msg-content"><div className="msg-author">{m.author_name}</div><div className="msg-text">{m.content}</div>{currentUserId === m.from_user_id && <div className="msg-actions"><button className="msg-action-btn" onClick={() => onUpdateMessage && onUpdateMessage(m.id, m.content)}>✏️</button><button className="msg-action-btn" onClick={() => onDeleteMessage && onDeleteMessage(m.id)}>🗑️</button></div>}</div></div>)}</div>
+        <div className="messages-list">{messages.length === 0 ? <div className="no-messages">Noch keine Nachrichten</div> : paginatedMessages.map((m) => <div key={m.id} className="message-bubble"><div className="msg-avatar">{m.author_name.substring(0,2)}</div><div className="msg-content"><div className="msg-header-row"><div className="msg-author">{m.author_name}</div>{currentUserId === m.from_user_id && <div className="msg-actions"><button className="msg-action-btn" onClick={() => onUpdateMessage && onUpdateMessage(m.id, m.content)}>✏️</button><button className="msg-action-btn" onClick={() => onDeleteMessage && onDeleteMessage(m.id)}>🗑️</button></div>}</div><div className="msg-text">{m.content}</div></div></div>)}</div>
         {totalMsgPages > 1 && <div className="message-pagination"><button className="page-btn" onClick={() => setMessagePage(messagePage - 1)} disabled={messagePage === 1}>◀</button><span className="page-num">{messagePage} / {totalMsgPages}</span><button className="page-btn" onClick={() => setMessagePage(messagePage + 1)} disabled={messagePage === totalMsgPages}>▶</button></div>}
         <form className="message-form" onSubmit={handleSend}><input type="text" placeholder="Nachricht schreiben..." value={message} onChange={(e: any) => setMessage(e.target.value)} className="msg-input" /><button type="submit" className="msg-send">SENDEN</button></form>
       </div>
@@ -336,7 +338,7 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentUserId, setCurrentUserId] = useState<number | undefined>(undefined);
 
-  const studentsPerPage = 9;
+  const studentsPerPage = typeof window !== "undefined" && window.innerWidth < 768 ? 15 : 26;
   const validStudents = students.slice(0, 26);
   const totalStudentPages = Math.ceil(validStudents.length / studentsPerPage);
   const currentStudents = validStudents.slice(studentPage * studentsPerPage, (studentPage + 1) * studentsPerPage);
