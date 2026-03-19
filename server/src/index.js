@@ -307,8 +307,12 @@ const swaggerDocument = {
 };
 
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || "*",
-  credentials: false
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://yearbook2506eon-production.up.railway.app'
+  ],
+  credentials: true
 }));
 
 app.use(express.json());
