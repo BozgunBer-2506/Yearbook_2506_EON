@@ -342,7 +342,20 @@ export default function Home() {
       const [teachersRes, studentsRes] = await Promise.all([fetch(`${API}/yearbook/teachers`), fetch(`${API}/yearbook/students`)]);
       const teachersData = await teachersRes.json();
       const studentsData = await studentsRes.json();
-      setTeachers(teachersData); setStudents(studentsData); setLoading(false);
+      setTeachers(teachersData); setStudents(studentsData);
+      // Restore last viewed profile after page refresh
+      const saved = localStorage.getItem('currentView');
+      if (saved) {
+        const { type, id } = JSON.parse(saved);
+        if (type === 'teacher') {
+          const t = teachersData.find((x: Teacher) => x.id === id);
+          if (t) { setSelectedTeacher(t); setPage('teachers'); }
+        } else if (type === 'student') {
+          const s = studentsData.find((x: Student) => x.id === id);
+          if (s) { setSelectedStudent(s); setPage('students'); }
+        }
+      }
+      setLoading(false);
     } catch { setLoading(false); }
   };
 
@@ -360,10 +373,10 @@ export default function Home() {
     } 
   };
   const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); setIsLoggedIn(false); setPage('course'); setSelectedTeacher(null); setSelectedStudent(null); };
-  const handleSelectTeacher = (teacher: Teacher) => { setSelectedTeacher(teacher); fetchTeacherMessages(teacher.id); };
-  const handleBackFromTeacher = () => { setSelectedTeacher(null); setMessages([]); };
-  const handleSelectStudent = (student: Student) => { setSelectedStudent(student); fetchStudentMessages(student.id); };
-  const handleBackFromStudent = () => { setSelectedStudent(null); setMessages([]); };
+  const handleSelectTeacher = (teacher: Teacher) => { setSelectedTeacher(teacher); fetchTeacherMessages(teacher.id); localStorage.setItem('currentView', JSON.stringify({ type: 'teacher', id: teacher.id })); };
+  const handleBackFromTeacher = () => { setSelectedTeacher(null); setMessages([]); localStorage.removeItem('currentView'); };
+  const handleSelectStudent = (student: Student) => { setSelectedStudent(student); fetchStudentMessages(student.id); localStorage.setItem('currentView', JSON.stringify({ type: 'student', id: student.id })); };
+  const handleBackFromStudent = () => { setSelectedStudent(null); setMessages([]); localStorage.removeItem('currentView'); };
 
   const handleSendMessage = async (content: string) => {
     try {

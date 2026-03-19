@@ -60,15 +60,15 @@ async function seedImages() {
       }
     }
 
-    // 4. Update all students with pravatar.cc URLs
+    // 4. Update all students with robohash URLs
     const students = await db.query('SELECT id, email FROM students');
-    console.log(`\nUpdating ${students.rows.length} students with pravatar images...`);
+    console.log(`\nUpdating ${students.rows.length} students with robohash images...`);
 
     for (const student of students.rows) {
-      const pravatarUrl = `https://i.pravatar.cc/150?u=${student.email}`;
+      const robohashUrl = `https://robohash.org/${student.email}?set=set4&size=150x150`;
       await db.query(
         'UPDATE students SET profile_picture_url = $1 WHERE id = $2',
-        [pravatarUrl, student.id]
+        [robohashUrl, student.id]
       );
       console.log(`✓ Updated student: ${student.email}`);
     }

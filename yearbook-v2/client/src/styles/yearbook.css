@@ -531,10 +531,11 @@ body {
 }
 
 .card-motto {
-  font-size: 0.5rem;
-  color: #00e5cc;
+  font-size: 0.85rem;
   font-style: italic;
-  margin-top: 6px;
+  opacity: 0.8;
+  margin-top: 8px;
+  color: #94a3b8;
 }
 
 /* Profile Info Colors - Blue & White for IT look */
