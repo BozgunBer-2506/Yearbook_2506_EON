@@ -1,5 +1,7 @@
 require('dotenv').config({ path: require('path').join(__dirname, '../../.env') });
 const db = require('../config/db');
+const fs = require('fs');
+const path = require('path');
 
 async function seedImages() {
   console.log('Starting image seed...');
@@ -60,10 +62,36 @@ async function seedImages() {
       }
     }
 
-    // 4. Clear all student avatars - use initials instead
-    await db.query('UPDATE students SET profile_picture_url = NULL');
-    const studentCount = await db.query('SELECT COUNT(*) FROM students');
-    console.log(`\n✓ Cleared profile_picture_url for ${studentCount.rows[0].count} students (initials will be shown)`);
+    // 4. Auto-match student photos by email prefix, else NULL
+    const students = await db.query('SELECT id, email FROM students');
+    const imagesDir = path.join(__dirname, '../../public/images/');
+    const extensions = ['.png', '.jpg', '.jpeg'];
+    console.log(`\nUpdating ${students.rows.length} students (checking ${imagesDir})...`);
+
+    let matched = 0;
+    let cleared = 0;
+    for (const student of students.rows) {
+      const emailPrefix = student.email.split('@')[0];
+      let foundFile = null;
+      for (const ext of extensions) {
+        if (fs.existsSync(imagesDir + emailPrefix + ext)) {
+          foundFile = emailPrefix + ext;
+          break;
+        }
+      }
+      await db.query(
+        'UPDATE students SET profile_picture_url = $1 WHERE id = $2',
+        [foundFile, student.id]
+      );
+      if (foundFile) {
+        console.log(`✓ Photo found: ${student.email} -> ${foundFile}`);
+        matched++;
+      } else {
+        console.log(`  No photo: ${student.email} -> NULL`);
+        cleared++;
+      }
+    }
+    console.log(`\n✓ Students: ${matched} with photo, ${cleared} with initials (NULL)`);
 
     console.log('\n✅ Image seed completed successfully!');
   } catch (error) {
