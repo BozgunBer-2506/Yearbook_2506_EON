@@ -9,6 +9,9 @@ const authMiddleware = require("./middleware/authMiddleware");
 const authRoutes = require("./routes/authRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const yearbookRoutes = require("./routes/yearbookRoutes");
+const uploadRoutes = require("./routes/uploadRoutes");
+const profileRoutes = require("./routes/profileRoutes");
+const path = require("path");
 
 const swaggerUi = require("swagger-ui-express");
 
@@ -335,6 +338,11 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", authMiddleware.verifyToken, messageRoutes);
 app.use("/api/yearbook", yearbookRoutes);
+app.use("/api/upload", uploadRoutes);
+app.use("/api/users", authMiddleware.verifyToken, profileRoutes);
+
+// Static files for uploaded images
+app.use('/images', express.static(path.join(__dirname, '../public/images')));
 
 app.get("/health", async (req, res) => {
   try {
