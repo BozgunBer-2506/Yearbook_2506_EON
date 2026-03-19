@@ -311,7 +311,8 @@ app.use(cors({
     'http://localhost:3000',
     'http://localhost:3001',
     'https://yearbook2506eon-production.up.railway.app',
-    'https://yearbook2506eon.up.railway.app'
+    'https://yearbook2506eon.up.railway.app',
+    'https://welcoming-reflection-production-755e.up.railway.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
