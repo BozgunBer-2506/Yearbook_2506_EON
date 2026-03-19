@@ -310,10 +310,13 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://localhost:3001',
-    'https://yearbook2506eon-production.up.railway.app'
+    'https://yearbook2506eon-production.up.railway.app',
+    'https://yearbook2506eon.up.railway.app'
   ],
   credentials: true
 }));
+
+app.options("*", cors());
 
 app.use(express.json());
 
