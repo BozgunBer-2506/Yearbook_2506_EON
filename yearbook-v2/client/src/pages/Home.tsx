@@ -338,7 +338,7 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentUserId, setCurrentUserId] = useState<number | undefined>(undefined);
 
-  const studentsPerPage = typeof window !== "undefined" && window.innerWidth < 768 ? 15 : 26;
+  const studentsPerPage = typeof window !== "undefined" && window.innerWidth < 768 ? 15 : 9;
   const validStudents = students.slice(0, 26);
   const totalStudentPages = Math.ceil(validStudents.length / studentsPerPage);
   const currentStudents = validStudents.slice(studentPage * studentsPerPage, (studentPage + 1) * studentsPerPage);
