@@ -139,7 +139,7 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
       <div className="lp-card">
         <div className="lp-header">
           <div className="lp-logo">EON</div>
-          <div className="lp-title">Jahrbuch 25-06</div>
+          <div className="lp-title">Jahrbuch 25-06-EON</div>
           <div className="lp-subtitle">Agile Softwareentwicklung · Linux & Cloud</div>
         </div>
         {mode !== 'reset' && (
@@ -212,7 +212,7 @@ function CourseInfoPage() {
   return (
     <div className="content-page">
       <div className="section-label">ÜBER DEN KURS</div>
-      <h1 className="course-title">Klasse 25-06</h1>
+      <h1 className="course-title">Klasse 25-06-EON</h1>
       <div className="course-line"></div>
       <div className="info-grid">
         <div className="info-item"><span className="info-label">KURS</span><span className="info-value">Agile Softwareentwicklung</span></div>
@@ -399,7 +399,7 @@ export default function Home() {
 
   return (
     <div className="app">
-      <header className="header"><div className="logo">EON JAHRBUCH 25-06</div><button className="logout-btn" onClick={handleLogout}>LOGOUT</button></header>
+      <header className="header"><div className="logo">EON JAHRBUCH 25-06-EON</div><button className="logout-btn" onClick={handleLogout}>LOGOUT</button></header>
       <main className="main">
         <button className="nav-btn" onClick={prevPage} disabled={currentIndex === 0 || selectedTeacher !== null || selectedStudent !== null}>◀</button>
         <div className="content">

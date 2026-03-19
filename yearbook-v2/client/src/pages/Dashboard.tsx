@@ -166,7 +166,7 @@ export default function Dashboard() {
 return (
     <div className="app">
 <header className="header">
-        <div className="logo">EON JAHRBUCH 25-06</div>
+<div className="logo">EON JAHRBUCH 25-06-EON</div>
         <button className="logout-btn" onClick={handleLogout}>LOGOUT</button>
       </header>
 
@@ -178,7 +178,7 @@ return (
           {page === 'course' && !selectedTeacher && !selectedStudent && (
             <div className="content-page">
               <div className="section-label">ÜBER DEN KURS</div>
-              <h1 className="course-title">Klasse 25-06</h1>
+<h1 className="course-title">Klasse 25-06-EON</h1>
               <div className="course-line"></div>
               <div className="info-grid">
                 <div className="info-item"><span className="info-label">KURS</span><span className="info-value">Agile Softwareentwicklung</span></div>
