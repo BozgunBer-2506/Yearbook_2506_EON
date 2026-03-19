@@ -3,6 +3,13 @@ import '../styles/yearbook.css';
 
 
 const API = import.meta.env.VITE_API_URL || '/api';
+const BACKEND = (import.meta.env.VITE_API_URL || '/api').replace('/api', '');
+
+function getImageUrl(url?: string): string | undefined {
+  if (!url) return undefined;
+  if (url.startsWith('http')) return url; // pravatar or external
+  return `${BACKEND}/images/${url}`; // local file
+}
 
 interface Teacher {
   id: number;
@@ -233,7 +240,7 @@ function TeacherProfile({ teacher, messages, onBack, onSendMessage, currentUserI
     <div className="content-page profile-page">
       <button className="back-btn" onClick={onBack}>← ZURÜCK</button>
       <div className="profile-header">
-        <div className="profile-avatar large">{teacher.profile_picture_url ? <img src={`/images/${teacher.profile_picture_url}`} alt={teacher.first_name} /> : <span className="initials">{teacher.first_name[0]}{teacher.last_name[0]}</span>}</div>
+        <div className="profile-avatar large">{teacher.profile_picture_url ? <img src={getImageUrl(teacher.profile_picture_url)} alt={teacher.first_name} /> : <span className="initials">{teacher.first_name[0]}{teacher.last_name[0]}</span>}</div>
         <div className="profile-info">
           <div className="profile-name bright">{teacher.first_name} {teacher.last_name}</div>
           <div className="profile-role bright">{teacher.role}</div>
@@ -269,7 +276,7 @@ function TeachersPage({ teachers, onSelectTeacher }: { teachers: Teacher[], onSe
   return (
     <div className="content-page">
       <div className="section-label">TEAM & LEHRKOLLEGIUM 2026</div>
-      <div className="teachers-grid">{teachers.map((t) => <div key={t.id} className="teacher-card" onClick={() => onSelectTeacher(t)}><div className="avatar large">{t.profile_picture_url ? <img src={`/images/${t.profile_picture_url}`} alt={t.first_name} /> : <span className="initials">{t.first_name[0]}{t.last_name[0]}</span>}</div><div className="name bright">{t.first_name} {t.last_name}</div><div className="role bright">{t.role}</div><div className="email bright">{t.email}</div><div className="card-motto">{TEACHER_QUOTES[t.id] || "Technology shapes the future."}</div></div>)}</div>
+      <div className="teachers-grid">{teachers.map((t) => <div key={t.id} className="teacher-card" onClick={() => onSelectTeacher(t)}><div className="avatar large">{t.profile_picture_url ? <img src={getImageUrl(t.profile_picture_url)} alt={t.first_name} /> : <span className="initials">{t.first_name[0]}{t.last_name[0]}</span>}</div><div className="name bright">{t.first_name} {t.last_name}</div><div className="role bright">{t.role}</div><div className="email bright">{t.email}</div><div className="card-motto">{TEACHER_QUOTES[t.id] || "Technology shapes the future."}</div></div>)}</div>
     </div>
   );
 }
@@ -281,7 +288,7 @@ function StudentProfile({ student, messages, onBack, onSendMessage }: { student:
     <div className="content-page profile-page">
       <button className="back-btn" onClick={onBack}>← ZURÜCK</button>
       <div className="profile-header">
-        <div className="profile-avatar large">{student.profile_picture_url ? <img src={`/images/${student.profile_picture_url}`} alt={student.first_name} /> : <span className="initials">{student.first_name[0]}{student.last_name[0]}</span>}</div>
+        <div className="profile-avatar large">{student.profile_picture_url ? <img src={getImageUrl(student.profile_picture_url)} alt={student.first_name} /> : <span className="initials">{student.first_name[0]}{student.last_name[0]}</span>}</div>
         <div className="profile-info">
           <div className="profile-name bright">{student.first_name} {student.last_name}</div>
           <div className="profile-email bright">{student.email}</div>
@@ -301,7 +308,7 @@ function StudentsPage({ students, currentPage, totalPages, onPageChange, onSelec
   return (
     <div className="content-page">
       <div className="section-label">UNSERE KLASSE</div>
-      <div className="students-grid">{students.map((s) => <div key={s.id} className="student-card" onClick={() => onSelectStudent(s)}><div className="avatar">{s.profile_picture_url ? <img src={`/images/${s.profile_picture_url}`} alt={s.first_name} /> : <span className="initials">{s.first_name[0]}{s.last_name[0]}</span>}</div><div className="name bright">{s.first_name} {s.last_name}</div><div className="card-email bright">{s.email}</div>{s.bio && <div className="card-motto">{s.bio}</div>}</div>)}</div>
+      <div className="students-grid">{students.map((s) => <div key={s.id} className="student-card" onClick={() => onSelectStudent(s)}><div className="avatar">{s.profile_picture_url ? <img src={getImageUrl(s.profile_picture_url)} alt={s.first_name} /> : <span className="initials">{s.first_name[0]}{s.last_name[0]}</span>}</div><div className="name bright">{s.first_name} {s.last_name}</div><div className="card-email bright">{s.email}</div>{s.bio && <div className="card-motto">{s.bio}</div>}</div>)}</div>
       {totalPages > 1 && <div className="pagination"><button className="page-btn" onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 0}>◀</button><span className="page-num">{currentPage + 1} / {totalPages}</span><button className="page-btn" onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages - 1}>▶</button></div>}
     </div>
   );

@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 
 const API = import.meta.env.VITE_API_URL || '/api';
+const BACKEND = (import.meta.env.VITE_API_URL || '/api').replace('/api', '');
+
+function getImageUrl(url?: string): string | undefined {
+  if (!url) return undefined;
+  if (url.startsWith('http')) return url;
+  return `${BACKEND}/images/${url}`;
+}
 
 interface Teacher {
   id: number;
@@ -199,7 +206,7 @@ return (
                   <div key={t.id} className="teacher-card" onClick={() => handleSelectTeacher(t)}>
                     <div className="avatar large">
                       {t.profile_picture_url ? (
-                        <img src={`/images/${t.profile_picture_url}`} alt={t.first_name} />
+                        <img src={getImageUrl(t.profile_picture_url)} alt={t.first_name} />
                       ) : (
                         <span className="initials">{initials(t.first_name, t.last_name)}</span>
                       )}
@@ -222,7 +229,7 @@ return (
                   <div key={s.id} className="student-card" onClick={() => handleSelectStudent(s)}>
                     <div className="avatar">
                       {s.profile_picture_url ? (
-                        <img src={`/images/${s.profile_picture_url}`} alt={s.first_name} />
+                        <img src={getImageUrl(s.profile_picture_url)} alt={s.first_name} />
                       ) : (
                         <span className="initials">{initials(s.first_name, s.last_name)}</span>
                       )}
@@ -249,7 +256,7 @@ return (
               <div className="profile-header">
                 <div className="profile-avatar large">
                   {selectedTeacher.profile_picture_url ? (
-                    <img src={`/images/${selectedTeacher.profile_picture_url}`} alt={selectedTeacher.first_name} />
+                    <img src={getImageUrl(selectedTeacher.profile_picture_url)} alt={selectedTeacher.first_name} />
                   ) : (
                     <span className="initials">{initials(selectedTeacher.first_name, selectedTeacher.last_name)}</span>
                   )}
@@ -297,7 +304,7 @@ return (
               <div className="profile-header">
                 <div className="profile-avatar large">
                   {selectedStudent.profile_picture_url ? (
-                    <img src={`/images/${selectedStudent.profile_picture_url}`} alt={selectedStudent.first_name} />
+                    <img src={getImageUrl(selectedStudent.profile_picture_url)} alt={selectedStudent.first_name} />
                   ) : (
                     <span className="initials">{initials(selectedStudent.first_name, selectedStudent.last_name)}</span>
                   )}
