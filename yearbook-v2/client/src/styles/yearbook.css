@@ -1254,21 +1254,22 @@ body {
   body { overflow-x: hidden; }
   .teachers-list { grid-template-columns: 1fr !important; }
   .students-grid {
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 8px;
-    padding: 4px;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px;
+    padding: 12px;
   }
   .student-card {
-    padding: 16px 8px !important;
-    min-height: unset !important;
+    min-height: 180px !important;
+    padding: 20px 12px !important;
   }
   .student-card .avatar {
-    width: 70px !important;
-    height: 70px !important;
-    font-size: 1.3rem !important;
+    width: 80px !important;
+    height: 80px !important;
+    font-size: 1.5rem !important;
   }
   .student-card .name {
-    font-size: 0.8rem !important;
+    font-size: 0.9rem !important;
+    display: block !important;
   }
   .student-card .card-email,
   .student-card .card-motto {
