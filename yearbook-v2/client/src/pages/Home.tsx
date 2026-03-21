@@ -228,7 +228,6 @@ function CourseInfoPage({ teachers }: { teachers: Teacher[] }) {
         <div className="info-item"><span className="info-label">ZEITRAUM</span><span className="info-value">Juni 2025 – März 2026</span></div>
         <div className="info-item"><span className="info-label">INSTITUT</span><span className="info-value">Syntax Institut</span></div>
       </div>
-      <div className="course-quote">„Wer die Cloud beherrscht,<br/>gestaltet die digitale Zukunft."<em>— Syntax Institut</em></div>
       <div className="course-teachers-grid">
         {featuredTeachers.map((t) => (
           <div key={t.id} className="course-teacher-card">
@@ -244,6 +243,7 @@ function CourseInfoPage({ teachers }: { teachers: Teacher[] }) {
           </div>
         ))}
       </div>
+      <div className="course-quote">„Wer die Cloud beherrscht,<br/>gestaltet die digitale Zukunft."<em>— Syntax Institut</em></div>
     </div>
   );
 }
