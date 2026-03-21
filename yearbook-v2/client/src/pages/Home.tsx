@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import '../styles/yearbook.css';
 
-
 const API = import.meta.env.VITE_API_URL || '/api';
 const BACKEND = (import.meta.env.VITE_API_URL || '/api').replace('/api', '');
 
 function getImageUrl(url?: string): string | undefined {
   if (!url) return undefined;
-  if (url.startsWith('http')) return url; // pravatar or external
-  return `${BACKEND}/images/${url}`; // local file
+  if (url.startsWith('http')) return url;
+  return `${BACKEND}/images/${url}`;
 }
 
 interface Teacher {
@@ -47,6 +46,8 @@ const TEACHER_QUOTES: Record<number, string> = {
   4: "The best way to predict the future is to create it."
 };
 
+const MSGS_PER_PAGE = 10;
+
 function LoginPage({ onLogin }: { onLogin: () => void }) {
   const [mode, setMode] = useState<'login' | 'register' | 'reset'>('login');
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', newPassword: '' });
@@ -57,74 +58,34 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
   const msg = (text: string, error = false) => setMessage({ text, error });
 
   const handleLogin = async (e: any) => {
-    e.preventDefault();
-    setLoading(true);
-    msg('');
+    e.preventDefault(); setLoading(true); msg('');
     try {
-      const res = await fetch(`${API}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, password: form.password })
-      });
+      const res = await fetch(`${API}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: form.email, password: form.password }) });
       const data = await res.json();
-      if (res.ok) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        msg('Anmeldung erfolgreich...');
-        setTimeout(() => onLogin(), 1000);
-      } else {
-        msg(data.error || 'Anmeldung fehlgeschlagen.', true);
-      }
-    } catch {
-      msg('Anmeldung fehlgeschlagen.', true);
-    }
+      if (res.ok) { localStorage.setItem('token', data.token); localStorage.setItem('user', JSON.stringify(data.user)); msg('Anmeldung erfolgreich...'); setTimeout(() => onLogin(), 1000); }
+      else { msg(data.error || 'Anmeldung fehlgeschlagen.', true); }
+    } catch { msg('Anmeldung fehlgeschlagen.', true); }
     setLoading(false);
   };
 
   const handleRegister = async (e: any) => {
-    e.preventDefault();
-    setLoading(true);
-    msg('');
+    e.preventDefault(); setLoading(true); msg('');
     try {
-      const res = await fetch(`${API}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName: form.firstName, lastName: form.lastName, email: form.email, password: form.password })
-      });
+      const res = await fetch(`${API}/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ firstName: form.firstName, lastName: form.lastName, email: form.email, password: form.password }) });
       const data = await res.json();
-      if (res.ok) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        msg('Registrierung erfolgreich...');
-        setTimeout(() => onLogin(), 1000);
-      } else {
-        msg(data.error || 'Registrierung fehlgeschlagen.', true);
-      }
-    } catch {
-      msg('Registrierung fehlgeschlagen.', true);
-    }
+      if (res.ok) { localStorage.setItem('token', data.token); localStorage.setItem('user', JSON.stringify(data.user)); msg('Registrierung erfolgreich...'); setTimeout(() => onLogin(), 1000); }
+      else { msg(data.error || 'Registrierung fehlgeschlagen.', true); }
+    } catch { msg('Registrierung fehlgeschlagen.', true); }
     setLoading(false);
   };
 
   const handleReset = async (e: any) => {
-    e.preventDefault();
-    setLoading(true);
-    msg('');
+    e.preventDefault(); setLoading(true); msg('');
     try {
-      const res = await fetch(`${API}/auth/reset-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, newPassword: form.newPassword })
-      });
-      if (res.ok) {
-        msg('Passwort erfolgreich zurueckgesetzt!');
-        setTimeout(() => { setMode('login'); msg(''); }, 2500);
-      } else {
-        msg('Fehler beim Zuruecksetzen.', true);
-      }
-    } catch {
-      msg('Fehler beim Zuruecksetzen.', true);
-    }
+      const res = await fetch(`${API}/auth/reset-password`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: form.email, newPassword: form.newPassword }) });
+      if (res.ok) { msg('Passwort erfolgreich zurueckgesetzt!'); setTimeout(() => { setMode('login'); msg(''); }, 2500); }
+      else { msg('Fehler beim Zuruecksetzen.', true); }
+    } catch { msg('Fehler beim Zuruecksetzen.', true); }
     setLoading(false);
   };
 
@@ -132,17 +93,10 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
     <div className="lp-root">
       <div className="lp-stars" aria-hidden="true">
         {Array.from({ length: 80 }, (_, i) => (
-          <div key={i} className="lp-star" style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            width: Math.random() * 2 + 0.5,
-            height: Math.random() * 2 + 0.5,
-            animationDelay: `${Math.random() * 5}s`,
-          }} />
+          <div key={i} className="lp-star" style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, width: Math.random() * 2 + 0.5, height: Math.random() * 2 + 0.5, animationDelay: `${Math.random() * 5}s` }} />
         ))}
       </div>
-      <div className="lp-glow-teal" />
-      <div className="lp-glow-purple" />
+      <div className="lp-glow-teal" /><div className="lp-glow-purple" />
       <div className="lp-card">
         <div className="lp-header">
           <div className="lp-logo">EON</div>
@@ -157,14 +111,8 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
         )}
         {mode === 'login' && (
           <form className="lp-form" onSubmit={handleLogin}>
-            <div className="lp-field">
-              <label className="lp-label">E-Mail</label>
-              <input className="lp-input" type="email" placeholder="deine@email.de" value={form.email} onChange={set('email')} required />
-            </div>
-            <div className="lp-field">
-              <label className="lp-label">Passwort</label>
-              <input className="lp-input" type="password" placeholder="........" value={form.password} onChange={set('password')} required />
-            </div>
+            <div className="lp-field"><label className="lp-label">E-Mail</label><input className="lp-input" type="email" placeholder="deine@email.de" value={form.email} onChange={set('email')} required /></div>
+            <div className="lp-field"><label className="lp-label">Passwort</label><input className="lp-input" type="password" placeholder="........" value={form.password} onChange={set('password')} required /></div>
             <button className="lp-btn" type="submit" disabled={loading}>Anmelden ›</button>
             <p className="lp-switch">Noch kein Konto? <span onClick={() => { setMode('register'); msg(''); }}>Jetzt registrieren</span></p>
             <p className="lp-switch">Passwort vergessen? <span onClick={() => { setMode('reset'); msg(''); setForm({ ...form, email: '', newPassword: '' }); }}>Zuruecksetzen</span></p>
@@ -173,23 +121,11 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
         {mode === 'register' && (
           <form className="lp-form" onSubmit={handleRegister}>
             <div className="lp-row">
-              <div className="lp-field">
-                <label className="lp-label">Vorname</label>
-                <input className="lp-input" type="text" placeholder="Max" value={form.firstName} onChange={set('firstName')} required />
-              </div>
-              <div className="lp-field">
-                <label className="lp-label">Nachname</label>
-                <input className="lp-input" type="text" placeholder="Mustermann" value={form.lastName} onChange={set('lastName')} required />
-              </div>
+              <div className="lp-field"><label className="lp-label">Vorname</label><input className="lp-input" type="text" placeholder="Max" value={form.firstName} onChange={set('firstName')} required /></div>
+              <div className="lp-field"><label className="lp-label">Nachname</label><input className="lp-input" type="text" placeholder="Mustermann" value={form.lastName} onChange={set('lastName')} required /></div>
             </div>
-            <div className="lp-field">
-              <label className="lp-label">E-Mail</label>
-              <input className="lp-input" type="email" placeholder="deine@email.de" value={form.email} onChange={set('email')} required />
-            </div>
-            <div className="lp-field">
-              <label className="lp-label">Passwort <span className="lp-hint">(min. 6 Zeichen)</span></label>
-              <input className="lp-input" type="password" placeholder="........" value={form.password} onChange={set('password')} required minLength={6} />
-            </div>
+            <div className="lp-field"><label className="lp-label">E-Mail</label><input className="lp-input" type="email" placeholder="deine@email.de" value={form.email} onChange={set('email')} required /></div>
+            <div className="lp-field"><label className="lp-label">Passwort <span className="lp-hint">(min. 6 Zeichen)</span></label><input className="lp-input" type="password" placeholder="........" value={form.password} onChange={set('password')} required minLength={6} /></div>
             <button className="lp-btn" type="submit" disabled={loading}>Konto erstellen ›</button>
             <p className="lp-switch">Bereits registriert? <span onClick={() => { setMode('login'); msg(''); }}>Anmelden</span></p>
           </form>
@@ -197,14 +133,8 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
         {mode === 'reset' && (
           <form className="lp-form" onSubmit={handleReset}>
             <div className="lp-reset-title">Passwort zuruecksetzen</div>
-            <div className="lp-field">
-              <label className="lp-label">E-Mail</label>
-              <input className="lp-input" type="email" placeholder="deine@email.de" value={form.email} onChange={set('email')} required />
-            </div>
-            <div className="lp-field">
-              <label className="lp-label">Neues Passwort <span className="lp-hint">(min. 6 Zeichen)</span></label>
-              <input className="lp-input" type="password" placeholder="........" value={form.newPassword} onChange={set('newPassword')} required minLength={6} />
-            </div>
+            <div className="lp-field"><label className="lp-label">E-Mail</label><input className="lp-input" type="email" placeholder="deine@email.de" value={form.email} onChange={set('email')} required /></div>
+            <div className="lp-field"><label className="lp-label">Neues Passwort <span className="lp-hint">(min. 6 Zeichen)</span></label><input className="lp-input" type="password" placeholder="........" value={form.newPassword} onChange={set('newPassword')} required minLength={6} /></div>
             <button className="lp-btn" type="submit" disabled={loading}>Passwort aendern ›</button>
             <p className="lp-switch"><span onClick={() => { setMode('login'); msg(''); }}>Zurueck zur Anmeldung</span></p>
           </form>
@@ -215,6 +145,7 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
   );
 }
 
+// TASK 1: Course info page with horizontal TEAM section (no cards, no click)
 function CourseInfoPage({ teachers }: { teachers: Teacher[] }) {
   const featuredTeachers = teachers.slice(0, 4);
   return (
@@ -228,37 +159,36 @@ function CourseInfoPage({ teachers }: { teachers: Teacher[] }) {
         <div className="info-item"><span className="info-label">ZEITRAUM</span><span className="info-value">Juni 2025 – März 2026</span></div>
         <div className="info-item"><span className="info-label">INSTITUT</span><span className="info-value">Syntax Institut</span></div>
       </div>
-      <div className="course-teachers-grid">
-        {featuredTeachers.map((t) => (
-          <div key={t.id} className="course-teacher-card">
-            <div className="avatar">
-              {t.profile_picture_url ? <img src={getImageUrl(t.profile_picture_url)} alt={t.first_name} /> : <span className="initials">{t.first_name[0]}{t.last_name[0]}</span>}
-            </div>
-            <div>
-              <div className="name">{t.first_name} {t.last_name}</div>
-              <div className="role">{t.role}</div>
-              <div className="email">{t.email}</div>
-            </div>
-            <div className="course-teacher-motto">
-              {TEACHER_QUOTES[t.id] || ""}
-            </div>
-          </div>
-        ))}
-      </div>
       <div className="course-quote">„Wer die Cloud beherrscht,<br/>gestaltet die digitale Zukunft."<em>— Syntax Institut</em></div>
+      {featuredTeachers.length > 0 && (
+        <div className="course-team-section">
+          <div className="course-team-label">// TEAM & LEHRKOLLEGIUM</div>
+          <div className="course-team-row">
+            {featuredTeachers.map((t) => (
+              <div key={t.id} className="course-team-member">
+                <div className="course-team-avatar">
+                  {t.profile_picture_url
+                    ? <img src={getImageUrl(t.profile_picture_url)} alt={t.first_name} />
+                    : <span>{t.first_name[0]}{t.last_name[0]}</span>}
+                </div>
+                <div className="course-team-name">{t.first_name} {t.last_name}</div>
+                <div className="course-team-role">{t.role}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-const MESSAGES_PER_PAGE = 10;
-
 function TeacherProfile({ teacher, messages, onBack, onSendMessage, currentUserId, onDeleteMessage, onUpdateMessage }: { teacher: Teacher, messages: Message[], onBack: () => void, onSendMessage: (content: string) => void, currentUserId?: number, onDeleteMessage?: (id: number) => void, onUpdateMessage?: (id: number, content: string) => void }) {
   const [message, setMessage] = useState('');
-  const [messagePage, setMessagePage] = useState(1);
+  const [msgPage, setMsgPage] = useState(1);
   const quote = TEACHER_QUOTES[teacher.id] || "Technology shapes the future.";
-  const handleSend = (e: any) => { e.preventDefault(); if (message.trim()) { onSendMessage(message); setMessage(''); setMessagePage(1); } };
-  const totalMsgPages = Math.ceil(messages.length / MESSAGES_PER_PAGE);
-  const paginatedMessages = messages.slice((messagePage - 1) * MESSAGES_PER_PAGE, messagePage * MESSAGES_PER_PAGE);
+  const handleSend = (e: any) => { e.preventDefault(); if (message.trim()) { onSendMessage(message); setMessage(''); setMsgPage(1); } };
+  const totalMsgPages = Math.ceil(messages.length / MSGS_PER_PAGE);
+  const paginatedMessages = messages.slice((msgPage - 1) * MSGS_PER_PAGE, msgPage * MSGS_PER_PAGE);
   return (
     <div className="content-page profile-page">
       <button className="back-btn" onClick={onBack}>← ZURÜCK</button>
@@ -273,25 +203,26 @@ function TeacherProfile({ teacher, messages, onBack, onSendMessage, currentUserI
       <div className="teacher-quote-section"><div className="section-label">MOTTO</div><div className="teacher-quote">„{quote}"</div></div>
       <div className="messages-section">
         <div className="section-label">GEDANKEN & REAKTIONEN</div>
-        <div className="messages-list">{messages.length === 0 ? <div className="no-messages">Noch keine Nachrichten</div> : paginatedMessages.map((m) => (
-          <div key={m.id} className="message-bubble">
-            <div className="msg-avatar">{m.author_name.substring(0,2)}</div>
-            <div className="msg-content">
-              <div className="msg-header-row">
-                <div className="msg-author">{m.author_name}</div>
-                {currentUserId === m.from_user_id && (
-                  <div className="msg-actions">
-                    <button className="msg-action-btn" onClick={() => onUpdateMessage && onUpdateMessage(m.id, m.content)}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4db8ff" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-                    <button className="msg-action-btn" onClick={() => onDeleteMessage && onDeleteMessage(m.id)}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff4d6d" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
-                  </div>
-                )}
+        <div className="messages-list">
+          {messages.length === 0 ? <div className="no-messages">Noch keine Nachrichten</div> : paginatedMessages.map((m) => (
+            <div key={m.id} className="message-bubble">
+              <div className="msg-avatar">{m.author_name.substring(0, 2)}</div>
+              <div className="msg-content">
+                <div className="msg-header-row">
+                  <div className="msg-author">{m.author_name}</div>
+                  {currentUserId === m.from_user_id && (
+                    <div className="msg-actions">
+                      <button className="msg-action-btn" onClick={() => onUpdateMessage && onUpdateMessage(m.id, m.content)}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4db8ff" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                      <button className="msg-action-btn" onClick={() => onDeleteMessage && onDeleteMessage(m.id)}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff4d6d" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
+                    </div>
+                  )}
+                </div>
+                <div className="msg-text">{m.content}</div>
               </div>
-              <div className="msg-text">{m.content}</div>
             </div>
-          </div>
-        ))}
+          ))}
         </div>
-        {totalMsgPages > 1 && <div className="message-pagination"><button className="page-btn" onClick={() => setMessagePage(messagePage - 1)} disabled={messagePage === 1}>◀</button><span className="page-num">{messagePage} / {totalMsgPages}</span><button className="page-btn" onClick={() => setMessagePage(messagePage + 1)} disabled={messagePage === totalMsgPages}>▶</button></div>}
+        {totalMsgPages > 1 && <div className="message-pagination"><button className="page-btn" onClick={() => setMsgPage(msgPage - 1)} disabled={msgPage === 1}>◀</button><span className="page-num">{msgPage} / {totalMsgPages}</span><button className="page-btn" onClick={() => setMsgPage(msgPage + 1)} disabled={msgPage === totalMsgPages}>▶</button></div>}
         <form className="message-form" onSubmit={handleSend}><input type="text" placeholder="Nachricht schreiben..." value={message} onChange={(e: any) => setMessage(e.target.value)} className="msg-input" /><button type="submit" className="msg-send">SENDEN</button></form>
       </div>
     </div>
@@ -307,12 +238,60 @@ function TeachersPage({ teachers, onSelectTeacher }: { teachers: Teacher[], onSe
   );
 }
 
+// TASK 3: Mobile full-screen student profile modal
+function MobileStudentModal({ student, messages, onClose, onSendMessage, currentUserId, onDeleteMessage, onUpdateMessage }: { student: Student, messages: Message[], onClose: () => void, onSendMessage: (content: string) => void, currentUserId?: number, onDeleteMessage?: (id: number) => void, onUpdateMessage?: (id: number, content: string) => void }) {
+  const [message, setMessage] = useState('');
+  const [msgPage, setMsgPage] = useState(1);
+  const handleSend = (e: any) => { e.preventDefault(); if (message.trim()) { onSendMessage(message); setMessage(''); setMsgPage(1); } };
+  const totalMsgPages = Math.ceil(messages.length / MSGS_PER_PAGE);
+  const paginatedMessages = messages.slice((msgPage - 1) * MSGS_PER_PAGE, msgPage * MSGS_PER_PAGE);
+  return (
+    <div className="mobile-modal-overlay">
+      <div className="mobile-modal-content">
+        <button className="mobile-modal-close" onClick={onClose}>✕</button>
+        <div className="profile-header">
+          <div className="profile-avatar large">{student.profile_picture_url ? <img src={getImageUrl(student.profile_picture_url)} alt={student.first_name} /> : <span className="initials">{student.first_name[0]}{student.last_name[0]}</span>}</div>
+          <div className="profile-info">
+            <div className="profile-name bright">{student.first_name} {student.last_name}</div>
+            <div className="profile-email bright">{student.email}</div>
+            {student.bio && <div className="profile-bio bright">„{student.bio}"</div>}
+          </div>
+        </div>
+        <div className="messages-section">
+          <div className="section-label">GEDANKEN & REAKTIONEN</div>
+          <div className="messages-list">
+            {messages.length === 0 ? <div className="no-messages">Noch keine Nachrichten</div> : paginatedMessages.map((m) => (
+              <div key={m.id} className="message-bubble">
+                <div className="msg-avatar">{m.author_name.substring(0, 2)}</div>
+                <div className="msg-content">
+                  <div className="msg-header-row">
+                    <div className="msg-author">{m.author_name}</div>
+                    {currentUserId === m.from_user_id && (
+                      <div className="msg-actions">
+                        <button className="msg-action-btn" onClick={() => onUpdateMessage && onUpdateMessage(m.id, m.content)}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4db8ff" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                        <button className="msg-action-btn" onClick={() => onDeleteMessage && onDeleteMessage(m.id)}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff4d6d" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="msg-text">{m.content}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          {totalMsgPages > 1 && <div className="message-pagination"><button className="page-btn" onClick={() => setMsgPage(msgPage - 1)} disabled={msgPage === 1}>◀</button><span className="page-num">{msgPage} / {totalMsgPages}</span><button className="page-btn" onClick={() => setMsgPage(msgPage + 1)} disabled={msgPage === totalMsgPages}>▶</button></div>}
+          <form className="message-form" onSubmit={handleSend}><input type="text" placeholder="Nachricht schreiben..." value={message} onChange={(e: any) => setMessage(e.target.value)} className="msg-input" /><button type="submit" className="msg-send">SENDEN</button></form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function StudentProfile({ student, messages, onBack, onSendMessage, currentUserId, onDeleteMessage, onUpdateMessage }: { student: Student, messages: Message[], onBack: () => void, onSendMessage: (content: string) => void, currentUserId?: number, onDeleteMessage?: (id: number) => void, onUpdateMessage?: (id: number, content: string) => void }) {
   const [message, setMessage] = useState('');
-  const [messagePage, setMessagePage] = useState(1);
-  const handleSend = (e: any) => { e.preventDefault(); if (message.trim()) { onSendMessage(message); setMessage(''); setMessagePage(1); } };
-  const totalMsgPages = Math.ceil(messages.length / MESSAGES_PER_PAGE);
-  const paginatedMessages = messages.slice((messagePage - 1) * MESSAGES_PER_PAGE, messagePage * MESSAGES_PER_PAGE);
+  const [msgPage, setMsgPage] = useState(1);
+  const handleSend = (e: any) => { e.preventDefault(); if (message.trim()) { onSendMessage(message); setMessage(''); setMsgPage(1); } };
+  const totalMsgPages = Math.ceil(messages.length / MSGS_PER_PAGE);
+  const paginatedMessages = messages.slice((msgPage - 1) * MSGS_PER_PAGE, msgPage * MSGS_PER_PAGE);
   return (
     <div className="content-page profile-page">
       <button className="back-btn" onClick={onBack}>← ZURÜCK</button>
@@ -326,15 +305,68 @@ function StudentProfile({ student, messages, onBack, onSendMessage, currentUserI
       </div>
       <div className="messages-section">
         <div className="section-label">GEDANKEN & REAKTIONEN</div>
-        <div className="messages-list">{messages.length === 0 ? <div className="no-messages">Noch keine Nachrichten</div> : paginatedMessages.map((m) => <div key={m.id} className="message-bubble"><div className="msg-avatar">{m.author_name.substring(0,2)}</div><div className="msg-content"><div className="msg-header-row"><div className="msg-author">{m.author_name}</div>{currentUserId === m.from_user_id && <div className="msg-actions"><button className="msg-action-btn" onClick={() => onUpdateMessage && onUpdateMessage(m.id, m.content)}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4db8ff" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button className="msg-action-btn" onClick={() => onDeleteMessage && onDeleteMessage(m.id)}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff4d6d" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></div>}</div><div className="msg-text">{m.content}</div></div></div>)}</div>
-        {totalMsgPages > 1 && <div className="message-pagination"><button className="page-btn" onClick={() => setMessagePage(messagePage - 1)} disabled={messagePage === 1}>◀</button><span className="page-num">{messagePage} / {totalMsgPages}</span><button className="page-btn" onClick={() => setMessagePage(messagePage + 1)} disabled={messagePage === totalMsgPages}>▶</button></div>}
+        <div className="messages-list">
+          {messages.length === 0 ? <div className="no-messages">Noch keine Nachrichten</div> : paginatedMessages.map((m) => (
+            <div key={m.id} className="message-bubble">
+              <div className="msg-avatar">{m.author_name.substring(0, 2)}</div>
+              <div className="msg-content">
+                <div className="msg-header-row">
+                  <div className="msg-author">{m.author_name}</div>
+                  {currentUserId === m.from_user_id && (
+                    <div className="msg-actions">
+                      <button className="msg-action-btn" onClick={() => onUpdateMessage && onUpdateMessage(m.id, m.content)}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4db8ff" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                      <button className="msg-action-btn" onClick={() => onDeleteMessage && onDeleteMessage(m.id)}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff4d6d" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
+                    </div>
+                  )}
+                </div>
+                <div className="msg-text">{m.content}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {totalMsgPages > 1 && <div className="message-pagination"><button className="page-btn" onClick={() => setMsgPage(msgPage - 1)} disabled={msgPage === 1}>◀</button><span className="page-num">{msgPage} / {totalMsgPages}</span><button className="page-btn" onClick={() => setMsgPage(msgPage + 1)} disabled={msgPage === totalMsgPages}>▶</button></div>}
         <form className="message-form" onSubmit={handleSend}><input type="text" placeholder="Nachricht schreiben..." value={message} onChange={(e: any) => setMessage(e.target.value)} className="msg-input" /><button type="submit" className="msg-send">SENDEN</button></form>
       </div>
     </div>
   );
 }
 
-function StudentsPage({ students, currentPage, totalPages, onPageChange, onSelectStudent }: { students: Student[], currentPage: number, totalPages: number, onPageChange: (page: number) => void, onSelectStudent: (student: Student) => void }) {
+// TASK 2: StudentsPage with mobile Instagram grid (3 cols, 15/11 pagination) + desktop unchanged
+function StudentsPage({ students, currentPage, totalPages, onPageChange, onSelectStudent, isMobile, mobileModalStudent, mobileModalMessages, onCloseMobileModal, onSendMobileMessage, currentUserId, onDeleteMobileMessage, onUpdateMobileMessage }: {
+  students: Student[], currentPage: number, totalPages: number, onPageChange: (page: number) => void, onSelectStudent: (student: Student) => void,
+  isMobile: boolean, mobileModalStudent: Student | null, mobileModalMessages: Message[], onCloseMobileModal: () => void,
+  onSendMobileMessage: (content: string) => void, currentUserId?: number, onDeleteMobileMessage?: (id: number) => void, onUpdateMobileMessage?: (id: number, content: string) => void
+}) {
+  if (isMobile) {
+    return (
+      <div className="content-page">
+        <div className="section-label">UNSERE KLASSE</div>
+        <div className="mobile-student-grid">
+          {students.map((s) => (
+            <div key={s.id} className="mobile-student-thumb" onClick={() => onSelectStudent(s)}>
+              <div className="mobile-student-avatar">
+                {s.profile_picture_url ? <img src={getImageUrl(s.profile_picture_url)} alt={s.first_name} /> : <span>{s.first_name[0]}{s.last_name[0]}</span>}
+              </div>
+              <div className="mobile-student-name">{s.first_name} {s.last_name}</div>
+            </div>
+          ))}
+        </div>
+        {totalPages > 1 && <div className="pagination"><button className="page-btn" onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 0}>◀</button><span className="page-num">{currentPage + 1} / {totalPages}</span><button className="page-btn" onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages - 1}>▶</button></div>}
+        {mobileModalStudent && (
+          <MobileStudentModal
+            student={mobileModalStudent}
+            messages={mobileModalMessages}
+            onClose={onCloseMobileModal}
+            onSendMessage={onSendMobileMessage}
+            currentUserId={currentUserId}
+            onDeleteMessage={onDeleteMobileMessage}
+            onUpdateMessage={onUpdateMobileMessage}
+          />
+        )}
+      </div>
+    );
+  }
+  // Desktop layout unchanged
   return (
     <div className="content-page">
       <div className="section-label">UNSERE KLASSE</div>
@@ -348,6 +380,8 @@ export default function Home() {
   const [page, setPage] = useState<Page>('course');
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [mobileModalStudent, setMobileModalStudent] = useState<Student | null>(null);
+  const [mobileModalMessages, setMobileModalMessages] = useState<Message[]>([]);
   const [studentPage, setStudentPage] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -356,10 +390,26 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentUserId, setCurrentUserId] = useState<number | undefined>(undefined);
 
-  const studentsPerPage = window.innerWidth < 768 ? 4 : 9;
+  const isMobile = window.innerWidth <= 768;
+  // Mobile: 15 per page (page 1), 11 per page (page 2+); Desktop: 9 per page
+  const mobileStudentsPerPage = (p: number) => p === 0 ? 15 : 11;
+  const desktopStudentsPerPage = 9;
+
   const validStudents = students.slice(0, 26);
-  const totalStudentPages = Math.ceil(validStudents.length / studentsPerPage);
-  const currentStudents = validStudents.slice(studentPage * studentsPerPage, (studentPage + 1) * studentsPerPage);
+  let totalStudentPages: number;
+  let currentStudents: Student[];
+  if (isMobile) {
+    // Calculate mobile pagination: page 0 = first 15, page 1 = next 11
+    const page0Count = Math.min(15, validStudents.length);
+    const remaining = validStudents.length - page0Count;
+    totalStudentPages = remaining > 0 ? 1 + Math.ceil(remaining / 11) : 1;
+    const start = studentPage === 0 ? 0 : 15 + (studentPage - 1) * 11;
+    const count = studentPage === 0 ? 15 : 11;
+    currentStudents = validStudents.slice(start, start + count);
+  } else {
+    totalStudentPages = Math.ceil(validStudents.length / desktopStudentsPerPage);
+    currentStudents = validStudents.slice(studentPage * desktopStudentsPerPage, (studentPage + 1) * desktopStudentsPerPage);
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -375,7 +425,6 @@ export default function Home() {
       setTeachers(teachersData);
       setStudents(studentsData);
       setLoading(false);
-      // Restore last viewed profile after page refresh
       const saved = localStorage.getItem('currentView');
       if (saved) {
         const { type, id } = JSON.parse(saved);
@@ -392,22 +441,26 @@ export default function Home() {
 
   const fetchTeacherMessages = async (teacherId: number) => { try { const res = await fetch(`${API}/yearbook/messages/teacher/${teacherId}`); setMessages(await res.json()); } catch { console.error('error'); } };
   const fetchStudentMessages = async (studentId: number) => { try { const res = await fetch(`${API}/yearbook/messages/student/${studentId}`); setMessages(await res.json()); } catch { console.error('error'); } };
+  const fetchMobileModalMessages = async (studentId: number) => { try { const res = await fetch(`${API}/yearbook/messages/student/${studentId}`); setMobileModalMessages(await res.json()); } catch { console.error('error'); } };
 
-  const handleLogin = () => { 
-    const userData = localStorage.getItem('user'); 
-    if (userData) { 
-      const user = JSON.parse(userData);
-      setCurrentUserId(user.id);
-      setIsLoggedIn(true); 
-      setPage('course'); 
-      fetchData(); 
-    } 
+  const handleLogin = () => {
+    const userData = localStorage.getItem('user');
+    if (userData) { const user = JSON.parse(userData); setCurrentUserId(user.id); setIsLoggedIn(true); setPage('course'); fetchData(); }
   };
   const handleLogout = () => { localStorage.removeItem('token'); localStorage.removeItem('user'); setIsLoggedIn(false); setPage('course'); setSelectedTeacher(null); setSelectedStudent(null); };
   const handleSelectTeacher = (teacher: Teacher) => { setSelectedTeacher(teacher); fetchTeacherMessages(teacher.id); localStorage.setItem('currentView', JSON.stringify({ type: 'teacher', id: teacher.id })); };
   const handleBackFromTeacher = () => { setSelectedTeacher(null); setMessages([]); localStorage.removeItem('currentView'); };
-  const handleSelectStudent = (student: Student) => { setSelectedStudent(student); fetchStudentMessages(student.id); localStorage.setItem('currentView', JSON.stringify({ type: 'student', id: student.id })); };
+  const handleSelectStudent = (student: Student) => {
+    if (isMobile) {
+      // Mobile: open modal instead of navigating
+      setMobileModalStudent(student);
+      fetchMobileModalMessages(student.id);
+    } else {
+      setSelectedStudent(student); fetchStudentMessages(student.id); localStorage.setItem('currentView', JSON.stringify({ type: 'student', id: student.id }));
+    }
+  };
   const handleBackFromStudent = () => { setSelectedStudent(null); setMessages([]); localStorage.removeItem('currentView'); };
+  const handleCloseMobileModal = () => { setMobileModalStudent(null); setMobileModalMessages([]); };
 
   const handleSendMessage = async (content: string) => {
     try {
@@ -417,11 +470,27 @@ export default function Home() {
     } catch { console.error('error'); }
   };
 
+  const handleSendMobileMessage = async (content: string) => {
+    if (!mobileModalStudent) return;
+    try {
+      const res = await fetch(`${API}/yearbook/messages/student/${mobileModalStudent.id}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` }, body: JSON.stringify({ content }) });
+      if (res.ok) fetchMobileModalMessages(mobileModalStudent.id);
+    } catch { console.error('error'); }
+  };
+
   const handleDeleteMessage = async (messageId: number) => {
     if (!confirm('Nachricht loeschen?')) return;
     try {
       const res = await fetch(`${API}/yearbook/messages/${messageId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
       if (res.ok) { if (selectedStudent) fetchStudentMessages(selectedStudent.id); else if (selectedTeacher) fetchTeacherMessages(selectedTeacher.id); }
+    } catch { console.error('error'); }
+  };
+
+  const handleDeleteMobileMessage = async (messageId: number) => {
+    if (!confirm('Nachricht loeschen?')) return;
+    try {
+      const res = await fetch(`${API}/yearbook/messages/${messageId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+      if (res.ok && mobileModalStudent) fetchMobileModalMessages(mobileModalStudent.id);
     } catch { console.error('error'); }
   };
 
@@ -434,11 +503,24 @@ export default function Home() {
     } catch { console.error('error'); }
   };
 
+  const handleUpdateMobileMessage = async (messageId: number, currentContent: string) => {
+    const newContent = prompt('Nachricht bearbeiten:', currentContent);
+    if (!newContent || newContent === currentContent) return;
+    try {
+      const res = await fetch(`${API}/yearbook/messages/${messageId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` }, body: JSON.stringify({ content: newContent }) });
+      if (res.ok && mobileModalStudent) fetchMobileModalMessages(mobileModalStudent.id);
+    } catch { console.error('error'); }
+  };
+
   const nextPage = () => { if (selectedTeacher || selectedStudent) return; const pages: Page[] = ['course', 'teachers', 'students']; const idx = pages.indexOf(page); if (idx < pages.length - 1) { setPage(pages[idx + 1]); setStudentPage(0); } };
   const prevPage = () => { if (selectedTeacher || selectedStudent) return; const pages: Page[] = ['course', 'teachers', 'students']; const idx = pages.indexOf(page); if (idx > 0) { setPage(pages[idx - 1]); setStudentPage(0); } };
 
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (!isLoggedIn) return; if (selectedTeacher || selectedStudent) { if (e.key === 'Escape') { if (selectedTeacher) handleBackFromTeacher(); if (selectedStudent) handleBackFromStudent(); } return; } if (e.key === 'ArrowRight') nextPage(); if (e.key === 'ArrowLeft') prevPage(); };
+    const handleKey = (e: KeyboardEvent) => {
+      if (!isLoggedIn) return;
+      if (selectedTeacher || selectedStudent) { if (e.key === 'Escape') { if (selectedTeacher) handleBackFromTeacher(); if (selectedStudent) handleBackFromStudent(); } return; }
+      if (e.key === 'ArrowRight') nextPage(); if (e.key === 'ArrowLeft') prevPage();
+    };
     window.addEventListener('keydown', handleKey); return () => window.removeEventListener('keydown', handleKey);
   }, [page, isLoggedIn, selectedTeacher, selectedStudent]);
 
@@ -454,7 +536,30 @@ export default function Home() {
       <main className="main">
         <button className="nav-btn" onClick={prevPage} disabled={currentIndex === 0 || selectedTeacher !== null || selectedStudent !== null}>◀</button>
         <div className="content">
-          {selectedTeacher ? <TeacherProfile teacher={selectedTeacher} messages={messages} onBack={handleBackFromTeacher} onSendMessage={handleSendMessage} currentUserId={currentUserId} onDeleteMessage={handleDeleteMessage} onUpdateMessage={handleUpdateMessage} /> : selectedStudent ? <StudentProfile student={selectedStudent} messages={messages} onBack={handleBackFromStudent} onSendMessage={handleSendMessage} currentUserId={currentUserId} onDeleteMessage={handleDeleteMessage} onUpdateMessage={handleUpdateMessage} /> : page === 'course' ? <CourseInfoPage teachers={teachers} /> : page === 'teachers' ? <TeachersPage teachers={teachers} onSelectTeacher={handleSelectTeacher} /> : <StudentsPage students={currentStudents} currentPage={studentPage} totalPages={totalStudentPages} onPageChange={setStudentPage} onSelectStudent={handleSelectStudent} />}
+          {selectedTeacher
+            ? <TeacherProfile teacher={selectedTeacher} messages={messages} onBack={handleBackFromTeacher} onSendMessage={handleSendMessage} currentUserId={currentUserId} onDeleteMessage={handleDeleteMessage} onUpdateMessage={handleUpdateMessage} />
+            : selectedStudent
+              ? <StudentProfile student={selectedStudent} messages={messages} onBack={handleBackFromStudent} onSendMessage={handleSendMessage} currentUserId={currentUserId} onDeleteMessage={handleDeleteMessage} onUpdateMessage={handleUpdateMessage} />
+              : page === 'course'
+                ? <CourseInfoPage teachers={teachers} />
+                : page === 'teachers'
+                  ? <TeachersPage teachers={teachers} onSelectTeacher={handleSelectTeacher} />
+                  : <StudentsPage
+                      students={currentStudents}
+                      currentPage={studentPage}
+                      totalPages={totalStudentPages}
+                      onPageChange={setStudentPage}
+                      onSelectStudent={handleSelectStudent}
+                      isMobile={isMobile}
+                      mobileModalStudent={mobileModalStudent}
+                      mobileModalMessages={mobileModalMessages}
+                      onCloseMobileModal={handleCloseMobileModal}
+                      onSendMobileMessage={handleSendMobileMessage}
+                      currentUserId={currentUserId}
+                      onDeleteMobileMessage={handleDeleteMobileMessage}
+                      onUpdateMobileMessage={handleUpdateMobileMessage}
+                    />
+          }
         </div>
         <button className="nav-btn" onClick={nextPage} disabled={currentIndex === pages.length - 1 || selectedTeacher !== null || selectedStudent !== null}>▶</button>
       </main>

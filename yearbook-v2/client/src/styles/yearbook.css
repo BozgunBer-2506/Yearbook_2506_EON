@@ -1367,3 +1367,114 @@ body {
 .msg-header-row .msg-actions {
   margin-top: 0;
 }
+
+
+/* TASK 1: Course info TEAM section */
+.course-team-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 229, 204, 0.15);
+}
+.course-team-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  color: #00e5cc;
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+}
+.course-team-row {
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.course-team-member {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.course-team-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid rgba(77, 184, 255, 0.5);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(77, 184, 255, 0.08);
+  color: #4db8ff;
+  font-size: 1rem;
+  font-weight: 500;
+}
+.course-team-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.course-team-name { color: #e0f0ff; font-size: 0.8rem; font-weight: 600; text-align: center; }
+.course-team-role { color: #4db8ff; font-size: 0.7rem; text-align: center; }
+
+/* TASK 2: Mobile Instagram-style student grid */
+.mobile-student-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 4px;
+}
+.mobile-student-thumb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 8px 4px;
+}
+.mobile-student-thumb:active { opacity: 0.7; }
+.mobile-student-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 2px solid rgba(77, 184, 255, 0.5);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(77, 184, 255, 0.1);
+  color: #4db8ff;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+.mobile-student-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.mobile-student-name { color: #e0f0ff; font-size: 0.65rem; text-align: center; line-height: 1.2; word-break: break-word; }
+
+/* TASK 3: Mobile full-screen student profile modal */
+.mobile-modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1000;
+  background: rgba(2, 2, 5, 0.97);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.mobile-modal-content {
+  position: relative;
+  padding: 20px 16px 32px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+.mobile-modal-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: transparent;
+  border: 1px solid rgba(0, 229, 204, 0.4);
+  color: #00e5cc;
+  font-size: 1rem;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
