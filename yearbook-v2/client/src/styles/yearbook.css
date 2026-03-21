@@ -461,19 +461,20 @@ body {
 
 .course-teacher-card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 8px;
-  background: rgba(0, 20, 50, 0.7);
-  border: 1px solid rgba(77, 184, 255, 0.25);
+  gap: 16px;
+  background: rgba(0, 20, 50, 0.4);
+  border: 1px solid rgba(77, 184, 255, 0.2);
   border-radius: 12px;
   padding: 16px;
-  text-align: center;
+  text-align: left;
 }
 
 .course-teacher-card .avatar {
-  width: 70px;
-  height: 70px;
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
   border-radius: 50%;
   border: 2px solid #4db8ff;
   overflow: hidden;
@@ -482,8 +483,9 @@ body {
   justify-content: center;
   background: rgba(77, 184, 255, 0.1);
   color: #4db8ff;
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 500;
+  box-shadow: 0 0 15px rgba(77, 184, 255, 0.3);
 }
 
 .course-teacher-card .avatar img {
@@ -493,12 +495,28 @@ body {
 }
 
 .course-teacher-card .name {
-  font-size: 0.85rem;
-  margin-bottom: 2px;
+  color: #e0f0ff;
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
 .course-teacher-card .role {
-  font-size: 0.7rem;
+  color: #4db8ff;
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+.course-teacher-card .email {
+  color: rgba(160, 200, 232, 0.6);
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+.course-teacher-card .card-motto {
+  color: rgba(160, 200, 232, 0.5);
+  font-size: 0.75rem;
+  font-style: italic;
+  margin-top: 4px;
 }
 
 /* Teachers Grid */

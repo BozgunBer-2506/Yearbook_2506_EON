@@ -235,8 +235,12 @@ function CourseInfoPage({ teachers }: { teachers: Teacher[] }) {
             <div className="avatar">
               {t.profile_picture_url ? <img src={getImageUrl(t.profile_picture_url)} alt={t.first_name} /> : <span className="initials">{t.first_name[0]}{t.last_name[0]}</span>}
             </div>
-            <div className="name bright">{t.first_name} {t.last_name}</div>
-            <div className="role bright">{t.role}</div>
+            <div>
+              <div className="name bright">{t.first_name} {t.last_name}</div>
+              <div className="role">{t.role}</div>
+              <div className="email">{t.email}</div>
+              <div className="card-motto">{TEACHER_QUOTES[t.id] || ""}</div>
+            </div>
           </div>
         ))}
       </div>
