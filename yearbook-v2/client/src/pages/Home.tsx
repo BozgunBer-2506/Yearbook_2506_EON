@@ -215,7 +215,8 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
   );
 }
 
-function CourseInfoPage() {
+function CourseInfoPage({ teachers }: { teachers: Teacher[] }) {
+  const featuredTeachers = teachers.slice(0, 4);
   return (
     <div className="content-page">
       <div className="section-label">ÜBER DEN KURS</div>
@@ -228,6 +229,17 @@ function CourseInfoPage() {
         <div className="info-item"><span className="info-label">INSTITUT</span><span className="info-value">Syntax Institut</span></div>
       </div>
       <div className="course-quote">„Wer die Cloud beherrscht,<br/>gestaltet die digitale Zukunft."<em>— Syntax Institut</em></div>
+      <div className="course-teachers-grid">
+        {featuredTeachers.map((t) => (
+          <div key={t.id} className="course-teacher-card">
+            <div className="avatar">
+              {t.profile_picture_url ? <img src={getImageUrl(t.profile_picture_url)} alt={t.first_name} /> : <span className="initials">{t.first_name[0]}{t.last_name[0]}</span>}
+            </div>
+            <div className="name bright">{t.first_name} {t.last_name}</div>
+            <div className="role bright">{t.role}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -436,7 +448,7 @@ export default function Home() {
       <main className="main">
         <button className="nav-btn" onClick={prevPage} disabled={currentIndex === 0 || selectedTeacher !== null || selectedStudent !== null}>◀</button>
         <div className="content">
-          {selectedTeacher ? <TeacherProfile teacher={selectedTeacher} messages={messages} onBack={handleBackFromTeacher} onSendMessage={handleSendMessage} currentUserId={currentUserId} onDeleteMessage={handleDeleteMessage} onUpdateMessage={handleUpdateMessage} /> : selectedStudent ? <StudentProfile student={selectedStudent} messages={messages} onBack={handleBackFromStudent} onSendMessage={handleSendMessage} currentUserId={currentUserId} onDeleteMessage={handleDeleteMessage} onUpdateMessage={handleUpdateMessage} /> : page === 'course' ? <CourseInfoPage /> : page === 'teachers' ? <TeachersPage teachers={teachers} onSelectTeacher={handleSelectTeacher} /> : <StudentsPage students={currentStudents} currentPage={studentPage} totalPages={totalStudentPages} onPageChange={setStudentPage} onSelectStudent={handleSelectStudent} />}
+          {selectedTeacher ? <TeacherProfile teacher={selectedTeacher} messages={messages} onBack={handleBackFromTeacher} onSendMessage={handleSendMessage} currentUserId={currentUserId} onDeleteMessage={handleDeleteMessage} onUpdateMessage={handleUpdateMessage} /> : selectedStudent ? <StudentProfile student={selectedStudent} messages={messages} onBack={handleBackFromStudent} onSendMessage={handleSendMessage} currentUserId={currentUserId} onDeleteMessage={handleDeleteMessage} onUpdateMessage={handleUpdateMessage} /> : page === 'course' ? <CourseInfoPage teachers={teachers} /> : page === 'teachers' ? <TeachersPage teachers={teachers} onSelectTeacher={handleSelectTeacher} /> : <StudentsPage students={currentStudents} currentPage={studentPage} totalPages={totalStudentPages} onPageChange={setStudentPage} onSelectStudent={handleSelectStudent} />}
         </div>
         <button className="nav-btn" onClick={nextPage} disabled={currentIndex === pages.length - 1 || selectedTeacher !== null || selectedStudent !== null}>▶</button>
       </main>

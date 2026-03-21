@@ -452,6 +452,39 @@ body {
   font-size: 0.85rem;
 }
 
+.course-teachers-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.course-teacher-card {
+  background: rgba(0, 229, 204, 0.04);
+  border: 1px solid rgba(0, 229, 204, 0.15);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.course-teacher-card .avatar {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 8px;
+}
+
+.course-teacher-card .name {
+  font-size: 0.85rem;
+  margin-bottom: 2px;
+}
+
+.course-teacher-card .role {
+  font-size: 0.7rem;
+}
+
 /* Teachers Grid */
 .teachers-grid {
   display: grid;
