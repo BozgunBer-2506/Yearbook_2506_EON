@@ -669,15 +669,11 @@ body {
 /* Students Grid */
 .students-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  padding: 4px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 8px;
   width: 100%;
   box-sizing: border-box;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-  align-content: stretch;
 }
 
 .student-card {
@@ -702,8 +698,8 @@ body {
 }
 
 .student-card .avatar {
-  width: clamp(28px, 4vw, 65px);
-  height: clamp(28px, 4vw, 65px);
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   border: 2px solid #00e5cc;
   background: rgba(0, 229, 204, 0.1);
@@ -1180,7 +1176,7 @@ body {
   }
   .course-quote em { font-size: 0.75rem; }
   
-/* Teachers Grid */
+/* Teachers Grid - mobilde 2x2 */
 .teachers-grid {
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
@@ -1211,7 +1207,7 @@ body {
 .teacher-card .role { font-size: 0.65rem; }
 .teacher-card .email { font-size: 0.55rem; }
   
-  /* Students Grid */
+  /* Students Grid - mobilde 2x2, aynı boy */
 .students-grid {
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
