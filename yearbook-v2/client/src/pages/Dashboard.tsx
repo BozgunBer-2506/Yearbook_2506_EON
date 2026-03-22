@@ -77,8 +77,7 @@ export default function Dashboard() {
   const studentsPerPage = window.innerWidth < 768 ? 4 : 9;
   const validStudents = students.slice(0, 26);
   const currentStudents = validStudents.slice(studentPage * studentsPerPage, (studentPage + 1) * studentsPerPage);
-
-  useEffect(() => {
+  const totalStudentPages = Math.ceil(validStudents.length / studentsPerPage);  useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
     if (token && userData) {
@@ -586,8 +585,15 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+               {totalStudentPages > 1 && (
+                  <div className="pagination">
+                    <button className="page-btn" onClick={() => setStudentPage(p => Math.max(0, p - 1))} disabled={studentPage === 0}>◀</button>
+                    <span className="page-num">{studentPage + 1} / {totalStudentPages}</span>
+                    <button className="page-btn" onClick={() => setStudentPage(p => Math.min(totalStudentPages - 1, p + 1))} disabled={studentPage === totalStudentPages - 1}>▶</button>
+                  </div>
+                )}
+              </div>
+            )}
 
           {selectedTeacher && (
             <div className="content-page profile-page">
