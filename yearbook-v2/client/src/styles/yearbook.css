@@ -290,6 +290,7 @@ body { font-family: 'DM Sans', sans-serif; background: #000; color: #e2e8f0; ove
   .nav-btn { width: 28px; height: 28px; font-size: 0.75rem; flex-shrink: 0; }
   .content { padding: 8px 6px; overflow-y: auto; height: auto; }
   .content-page { overflow-y: auto; height: auto; }
+  .nav-btn-desktop { display: none; }
 
   /* Course Info */
   .section-label { font-size: 0.55rem; margin-bottom: 10px; }
@@ -399,4 +400,34 @@ body { font-family: 'DM Sans', sans-serif; background: #000; color: #e2e8f0; ove
   gap: 12px;
   margin-top: 8px;
   flex-shrink: 0;
+}
+
+/* Card avatar stability */
+.card-avatar-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.card-info-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 4px;
+}
+
+.card-info-wrap .name,
+.card-info-wrap .email,
+.card-info-wrap .role,
+.card-info-wrap .card-email,
+.card-info-wrap .card-motto {
+  width: 100%;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

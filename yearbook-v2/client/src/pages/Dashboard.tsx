@@ -45,8 +45,11 @@ interface User {
   role: string;
 }
 
+const isMobile = () => window.innerWidth < 768;
+
 export default function Dashboard() {
   const [_user, setUser] = useState<User | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [authEmail, setAuthEmail] = useState('');
@@ -70,11 +73,13 @@ export default function Dashboard() {
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
+  const [editingContent, setEditingContent] = useState('');
   const [studentPage, setStudentPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const touchStartX = useRef(0);
 
-  const studentsPerPage = window.innerWidth < 768 ? 4 : 9;
+  const studentsPerPage = isMobile() ? 4 : 9;
   const validStudents = students.slice(0, 26);
   const totalStudentPages = Math.ceil(validStudents.length / studentsPerPage);
   const currentStudents = validStudents.slice(
@@ -86,7 +91,9 @@ export default function Dashboard() {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
     if (token && userData) {
-      setUser(JSON.parse(userData));
+      const u = JSON.parse(userData);
+      setUser(u);
+      setCurrentUserId(u.id);
       setIsLoggedIn(true);
       fetchData();
     } else {
@@ -154,6 +161,7 @@ export default function Dashboard() {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         setUser(data.user);
+        setCurrentUserId(data.user.id);
         setIsLoggedIn(true);
         fetchData();
       }
@@ -185,6 +193,7 @@ export default function Dashboard() {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         setUser(data.user);
+        setCurrentUserId(data.user.id);
         setIsLoggedIn(true);
         fetchData();
       }
@@ -256,6 +265,7 @@ export default function Dashboard() {
     setSelectedTeacher(null);
     setSelectedStudent(null);
     setMessages([]);
+    setEditingMessageId(null);
     localStorage.removeItem('currentView');
   };
 
@@ -280,12 +290,45 @@ export default function Dashboard() {
     } catch { console.error('error'); }
   };
 
+  const handleDeleteMessage = async (messageId: number) => {
+    try {
+      const res = await fetch(`${API}/yearbook/messages/${messageId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      if (res.ok) {
+        if (selectedStudent) fetchStudentMessages(selectedStudent.id);
+        else if (selectedTeacher) fetchTeacherMessages(selectedTeacher.id);
+      }
+    } catch { console.error('error'); }
+  };
+
+  const handleEditMessage = async (messageId: number, content: string) => {
+    try {
+      const res = await fetch(`${API}/yearbook/messages/${messageId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ content })
+      });
+      if (res.ok) {
+        setEditingMessageId(null);
+        setEditingContent('');
+        if (selectedStudent) fetchStudentMessages(selectedStudent.id);
+        else if (selectedTeacher) fetchTeacherMessages(selectedTeacher.id);
+      }
+    } catch { console.error('error'); }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('currentView');
     localStorage.removeItem('currentPage');
     setUser(null);
+    setCurrentUserId(null);
     setIsLoggedIn(false);
     setAuthEmail('');
     setAuthPassword('');
@@ -340,7 +383,6 @@ export default function Dashboard() {
     }
   };
 
-  // Flash önleme: loading true iken hiçbir şey render etme
   if (loading) return <div className="loading">LÄDT...</div>;
 
   if (!isLoggedIn) {
@@ -372,9 +414,7 @@ export default function Dashboard() {
                   </div>
                   {resetError && <div style={{ color: '#ff6b6b', fontSize: '0.85rem', marginBottom: '12px', textAlign: 'center' }}>{resetError}</div>}
                   {resetSuccess && <div style={{ color: '#00e5cc', fontSize: '0.85rem', marginBottom: '12px', textAlign: 'center' }}>{resetSuccess}</div>}
-                  <button type="submit" className="msg-send"
-                    style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
-                    disabled={resetLoading}>
+                  <button type="submit" className="msg-send" style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }} disabled={resetLoading}>
                     {resetLoading ? 'LÄDT...' : 'ZURÜCKSETZEN'}
                   </button>
                 </form>
@@ -416,9 +456,7 @@ export default function Dashboard() {
                       className="msg-input" style={{ width: '100%' }} required />
                   </div>
                   {authError && <div style={{ color: '#ff6b6b', fontSize: '0.85rem', marginBottom: '12px', textAlign: 'center' }}>{authError}</div>}
-                  <button type="submit" className="msg-send"
-                    style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
-                    disabled={authLoading}>
+                  <button type="submit" className="msg-send" style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }} disabled={authLoading}>
                     {authLoading ? 'LÄDT...' : authMode === 'login' ? 'ANMELDEN' : 'REGISTRIEREN'}
                   </button>
                 </form>
@@ -446,6 +484,60 @@ export default function Dashboard() {
 
   const initials = (first: string, last: string) => `${first?.[0] || ''}${last?.[0] || ''}`.toUpperCase();
 
+  const MessageList = ({ msgs }: { msgs: Message[] }) => (
+    <div className="messages-list">
+      {msgs.length === 0 ? (
+        <div className="no-messages">Noch keine Nachrichten</div>
+      ) : msgs.map((m) => (
+        <div key={m.id} className="message-bubble">
+          <div className="msg-avatar">{m.author_name.substring(0, 2)}</div>
+          <div className="msg-content">
+            <div className="msg-header-row">
+              <div className="msg-author">{m.author_name}</div>
+              {m.author_id === currentUserId && (
+                <div className="msg-actions">
+                  <button className="msg-action-btn" onClick={() => {
+                    setEditingMessageId(m.id);
+                    setEditingContent(m.content);
+                  }}>✏️</button>
+                  <button className="msg-action-btn" onClick={() => handleDeleteMessage(m.id)}>🗑️</button>
+                </div>
+              )}
+            </div>
+            {editingMessageId === m.id ? (
+              <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
+                <input
+                  type="text"
+                  value={editingContent}
+                  onChange={e => setEditingContent(e.target.value)}
+                  className="msg-input"
+                  style={{ flex: 1, padding: '6px 8px', fontSize: '0.8rem' }}
+                />
+                <button className="msg-send" style={{ padding: '6px 10px', fontSize: '0.55rem' }}
+                  onClick={() => handleEditMessage(m.id, editingContent)}>✓</button>
+                <button className="msg-send" style={{ padding: '6px 10px', fontSize: '0.55rem', background: 'rgba(255,100,100,0.1)', borderColor: 'rgba(255,100,100,0.3)', color: '#ff6b6b' }}
+                  onClick={() => { setEditingMessageId(null); setEditingContent(''); }}>✕</button>
+              </div>
+            ) : (
+              <div className="msg-text">{m.content}</div>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  const MessageForm = () => (
+    <form className="message-form" onSubmit={(e) => {
+      e.preventDefault();
+      const input = (e.target as HTMLFormElement).querySelector('input') as HTMLInputElement;
+      if (input?.value.trim()) { handleSendMessage(input.value); input.value = ''; }
+    }}>
+      <input type="text" placeholder="Nachricht schreiben..." className="msg-input" />
+      <button type="submit" className="msg-send">SENDEN</button>
+    </form>
+  );
+
   return (
     <div className="app">
       <header className="header">
@@ -454,7 +546,7 @@ export default function Dashboard() {
       </header>
 
       <main className="main" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-        <button className="nav-btn" onClick={prevPage}
+        <button className="nav-btn nav-btn-desktop" onClick={prevPage}
           disabled={currentIndex === 0 && studentPage === 0 || !!selectedTeacher || !!selectedStudent}>◀</button>
 
         <div className="content">
@@ -495,16 +587,20 @@ export default function Dashboard() {
               <div className="teachers-grid">
                 {teachers.map((t) => (
                   <div key={t.id} className="teacher-card" onClick={() => handleSelectTeacher(t)}>
-                    <div className="avatar large">
-                      {t.profile_picture_url ? (
-                        <img src={getImageUrl(t.profile_picture_url)} alt={t.first_name} />
-                      ) : (
-                        <span className="initials">{initials(t.first_name, t.last_name)}</span>
-                      )}
+                    <div className="card-avatar-wrap">
+                      <div className="avatar large">
+                        {t.profile_picture_url ? (
+                          <img src={getImageUrl(t.profile_picture_url)} alt={t.first_name} />
+                        ) : (
+                          <span className="initials">{initials(t.first_name, t.last_name)}</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="name">{t.first_name} {t.last_name}</div>
-                    <div className="role">{t.role}</div>
-                    <div className="email">{t.email}</div>
+                    <div className="card-info-wrap">
+                      <div className="name">{t.first_name} {t.last_name}</div>
+                      <div className="role">{t.role}</div>
+                      <div className="email">{t.email}</div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -517,16 +613,20 @@ export default function Dashboard() {
               <div className="students-grid">
                 {currentStudents.map((s) => (
                   <div key={s.id} className="student-card" onClick={() => handleSelectStudent(s)}>
-                    <div className="avatar">
-                      {s.profile_picture_url ? (
-                        <img src={getImageUrl(s.profile_picture_url)} alt={s.first_name} />
-                      ) : (
-                        <span className="initials">{initials(s.first_name, s.last_name)}</span>
-                      )}
+                    <div className="card-avatar-wrap">
+                      <div className="avatar">
+                        {s.profile_picture_url ? (
+                          <img src={getImageUrl(s.profile_picture_url)} alt={s.first_name} />
+                        ) : (
+                          <span className="initials">{initials(s.first_name, s.last_name)}</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="name bright">{s.first_name} {s.last_name}</div>
-                    <div className="card-email bright">{s.email}</div>
-                    {s.bio && <div className="card-motto">{s.bio}</div>}
+                    <div className="card-info-wrap">
+                      <div className="name bright">{s.first_name} {s.last_name}</div>
+                      <div className="card-email bright">{s.email}</div>
+                      {s.bio && <div className="card-motto">{s.bio}</div>}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -559,27 +659,8 @@ export default function Dashboard() {
               </div>
               <div className="messages-section">
                 <div className="section-label">GEDANKEN & REAKTIONEN</div>
-                <div className="messages-list">
-                  {messages.length === 0 ? (
-                    <div className="no-messages">Noch keine Nachrichten</div>
-                  ) : messages.map((m) => (
-                    <div key={m.id} className="message-bubble">
-                      <div className="msg-avatar">{m.author_name.substring(0, 2)}</div>
-                      <div className="msg-content">
-                        <div className="msg-author">{m.author_name}</div>
-                        <div className="msg-text">{m.content}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <form className="message-form" onSubmit={(e) => {
-                  e.preventDefault();
-                  const input = (e.target as HTMLFormElement).querySelector('input') as HTMLInputElement;
-                  if (input?.value.trim()) { handleSendMessage(input.value); input.value = ''; }
-                }}>
-                  <input type="text" placeholder="Nachricht schreiben..." className="msg-input" />
-                  <button type="submit" className="msg-send">SENDEN</button>
-                </form>
+                <MessageList msgs={messages} />
+                <MessageForm />
               </div>
             </div>
           )}
@@ -603,34 +684,15 @@ export default function Dashboard() {
               </div>
               <div className="messages-section">
                 <div className="section-label">GEDANKEN & REAKTIONEN</div>
-                <div className="messages-list">
-                  {messages.length === 0 ? (
-                    <div className="no-messages">Noch keine Nachrichten</div>
-                  ) : messages.map((m) => (
-                    <div key={m.id} className="message-bubble">
-                      <div className="msg-avatar">{m.author_name.substring(0, 2)}</div>
-                      <div className="msg-content">
-                        <div className="msg-author">{m.author_name}</div>
-                        <div className="msg-text">{m.content}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <form className="message-form" onSubmit={(e) => {
-                  e.preventDefault();
-                  const input = (e.target as HTMLFormElement).querySelector('input') as HTMLInputElement;
-                  if (input?.value.trim()) { handleSendMessage(input.value); input.value = ''; }
-                }}>
-                  <input type="text" placeholder="Nachricht schreiben..." className="msg-input" />
-                  <button type="submit" className="msg-send">SENDEN</button>
-                </form>
+                <MessageList msgs={messages} />
+                <MessageForm />
               </div>
             </div>
           )}
 
         </div>
 
-        <button className="nav-btn" onClick={nextPage}
+        <button className="nav-btn nav-btn-desktop" onClick={nextPage}
           disabled={(currentIndex === pages.length - 1 && studentPage === totalStudentPages - 1) || !!selectedTeacher || !!selectedStudent}>▶</button>
       </main>
     </div>
