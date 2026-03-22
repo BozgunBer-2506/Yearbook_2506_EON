@@ -57,7 +57,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const touchStartX = useRef(0);
 
-  const studentsPerPage = window.innerWidth < 768 ? 15 : 9;
+  const studentsPerPage = window.innerWidth < 768 ? 4 : 9;
   const validStudents = students.slice(0, 26);
   const totalStudentPages = Math.ceil(validStudents.length / studentsPerPage);
   const currentStudents = validStudents.slice(studentPage * studentsPerPage, (studentPage + 1) * studentsPerPage);
@@ -301,12 +301,6 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-              {totalStudentPages > 1 && (
-                <div className="pagination">
-                  <button className="page-btn" onClick={() => setStudentPage(studentPage - 1)} disabled={studentPage === 0}>◀</button>
-                  <span className="page-num">{studentPage + 1} / {totalStudentPages}</span>
-                  <button className="page-btn" onClick={() => setStudentPage(studentPage + 1)} disabled={studentPage === totalStudentPages - 1}>▶</button>
-                </div>
               )}
             </div>
           )}
