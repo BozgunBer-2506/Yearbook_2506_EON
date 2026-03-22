@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const API = import.meta.env.VITE_API_URL || '/api';
 const BACKEND = (import.meta.env.VITE_API_URL || '/api').replace('/api', '');
@@ -54,8 +54,9 @@ export default function Dashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [studentPage, setStudentPage] = useState(0);
   const [loading, setLoading] = useState(true);
+  const touchStartX = useRef(0);
 
-  const studentsPerPage = 9;
+  const studentsPerPage = window.innerWidth < 768 ? 15 : 9;
   const validStudents = students.slice(0, 26);
   const totalStudentPages = Math.ceil(validStudents.length / studentsPerPage);
   const currentStudents = validStudents.slice(studentPage * studentsPerPage, (studentPage + 1) * studentsPerPage);
@@ -78,6 +79,29 @@ export default function Dashboard() {
       const sData = await sRes.json();
       setTeachers(tData);
       setStudents(sData);
+
+      // F5 restore
+      const saved = localStorage.getItem('currentView');
+      if (saved) {
+        const view = JSON.parse(saved);
+        if (view.type === 'student') {
+          const student = sData.find((s: Student) => s.id === view.id);
+          if (student) {
+            setSelectedStudent(student);
+            setPage('students');
+            const res = await fetch(`${API}/yearbook/messages/student/${student.id}`);
+            setMessages(await res.json());
+          }
+        } else if (view.type === 'teacher') {
+          const teacher = tData.find((t: Teacher) => t.id === view.id);
+          if (teacher) {
+            setSelectedTeacher(teacher);
+            setPage('teachers');
+            const res = await fetch(`${API}/yearbook/messages/teacher/${teacher.id}`);
+            setMessages(await res.json());
+          }
+        }
+      }
     } catch (e) {
       console.error('Error fetching data:', e);
     }
@@ -102,24 +126,27 @@ export default function Dashboard() {
     setSelectedTeacher(teacher);
     setSelectedStudent(null);
     fetchTeacherMessages(teacher.id);
+    localStorage.setItem('currentView', JSON.stringify({ type: 'teacher', id: teacher.id }));
   };
 
   const handleSelectStudent = (student: Student) => {
     setSelectedStudent(student);
     setSelectedTeacher(null);
     fetchStudentMessages(student.id);
+    localStorage.setItem('currentView', JSON.stringify({ type: 'student', id: student.id }));
   };
 
   const handleBack = () => {
     setSelectedTeacher(null);
     setSelectedStudent(null);
     setMessages([]);
+    localStorage.removeItem('currentView');
   };
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
     try {
-      const endpoint = selectedStudent 
+      const endpoint = selectedStudent
         ? `${API}/yearbook/messages/student/${selectedStudent.id}`
         : `${API}/yearbook/messages/teacher/${selectedTeacher?.id}`;
       const res = await fetch(endpoint, {
@@ -140,52 +167,61 @@ export default function Dashboard() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('currentView');
     window.location.reload();
   };
 
+  const pages = ['course', 'teachers', 'students'];
+  const currentIndex = pages.indexOf(page);
+
   const nextPage = () => {
     if (selectedTeacher || selectedStudent) return;
-    const pages = ['course', 'teachers', 'students'];
-    const idx = pages.indexOf(page);
-    if (idx < pages.length - 1) {
-      setPage(pages[idx + 1]);
+    if (currentIndex < pages.length - 1) {
+      setPage(pages[currentIndex + 1] as any);
       setStudentPage(0);
     }
   };
 
   const prevPage = () => {
     if (selectedTeacher || selectedStudent) return;
-    const pages = ['course', 'teachers', 'students'];
-    const idx = pages.indexOf(page);
-    if (idx > 0) {
-      setPage(pages[idx - 1]);
+    if (currentIndex > 0) {
+      setPage(pages[currentIndex - 1] as any);
       setStudentPage(0);
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) nextPage();
+      else prevPage();
     }
   };
 
   if (loading) return <div className="loading">LÄDT...</div>;
 
-  const pages = ['course', 'teachers', 'students'];
-  const currentIndex = pages.indexOf(page);
-
   const initials = (first: string, last: string) => `${first?.[0] || ''}${last?.[0] || ''}`.toUpperCase();
 
-return (
+  return (
     <div className="app">
-<header className="header">
-<div className="logo">EON JAHRBUCH 25-06-EON</div>
+      <header className="header">
+        <div className="logo">EON JAHRBUCH 25-06-EON</div>
         <button className="logout-btn" onClick={handleLogout}>LOGOUT</button>
       </header>
 
-      <main className="main">
-        <button className="nav-btn" onClick={prevPage} disabled={currentIndex === 0 || selectedTeacher !== null || selectedStudent !== null}>◀</button>
-        
+      <main className="main" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+        <button className="nav-btn" onClick={prevPage} disabled={currentIndex === 0 || !!selectedTeacher || !!selectedStudent}>◀</button>
+
         <div className="content">
           {/* Course Info */}
           {page === 'course' && !selectedTeacher && !selectedStudent && (
             <div className="content-page">
               <div className="section-label">ÜBER DEN KURS</div>
-<h1 className="course-title">Klasse 25-06-EON</h1>
+              <h1 className="course-title">Klasse 25-06-EON</h1>
               <div className="course-line"></div>
               <div className="info-grid">
                 <div className="info-item"><span className="info-label">KURS</span><span className="info-value">Agile Softwareentwicklung</span></div>
@@ -193,7 +229,31 @@ return (
                 <div className="info-item"><span className="info-label">ZEITRAUM</span><span className="info-value">Juni 2025 – März 2026</span></div>
                 <div className="info-item"><span className="info-label">INSTITUT</span><span className="info-value">Syntax Institut</span></div>
               </div>
-              <div className="course-quote">„Wer die Cloud beherrscht,<br/>gestaltet die digitale Zukunft."<em>— Syntax Institut</em></div>
+
+              {/* TEAM section */}
+              <div className="section-label" style={{ marginTop: '24px', marginBottom: '12px' }}>// TEAM & LEHRKOLLEGIUM</div>
+              {teachers.slice(0, 4).map(t => (
+                <div key={t.id} className="info-item" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
+                  <div style={{
+                    width: '48px', height: '48px', borderRadius: '50%',
+                    border: '1.5px solid #4db8ff', overflow: 'hidden', flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: '#4db8ff', fontSize: '0.9rem', background: 'rgba(77,184,255,0.1)'
+                  }}>
+                    {t.profile_picture_url
+                      ? <img src={getImageUrl(t.profile_picture_url)} alt={t.first_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : <span>{initials(t.first_name, t.last_name)}</span>
+                    }
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <span style={{ color: '#e0f0ff', fontSize: '0.9rem', fontWeight: 500 }}>{t.first_name} {t.last_name}</span>
+                    <span style={{ color: '#4db8ff', fontSize: '0.78rem' }}>{t.role}</span>
+                    <span style={{ color: 'rgba(160,200,232,0.5)', fontSize: '0.72rem' }}>{t.email}</span>
+                  </div>
+                </div>
+              ))}
+
+              <div className="course-quote" style={{ marginTop: '24px' }}>„Wer die Cloud beherrscht,<br />gestaltet die digitale Zukunft."<em>— Syntax Institut</em></div>
             </div>
           )}
 
@@ -234,8 +294,9 @@ return (
                         <span className="initials">{initials(s.first_name, s.last_name)}</span>
                       )}
                     </div>
-                    <div className="name">{s.first_name}</div>
-                    <div className="card-email">{s.email}</div>
+                    <div className="name bright">{s.first_name} {s.last_name}</div>
+                    <div className="card-email bright">{s.email}</div>
+                    {s.bio && <div className="card-motto">{s.bio}</div>}
                   </div>
                 ))}
               </div>
@@ -346,7 +407,7 @@ return (
           )}
         </div>
 
-        <button className="nav-btn" onClick={nextPage} disabled={currentIndex === pages.length - 1 || selectedTeacher !== null || selectedStudent !== null}>▶</button>
+        <button className="nav-btn" onClick={nextPage} disabled={currentIndex === pages.length - 1 || !!selectedTeacher || !!selectedStudent}>▶</button>
       </main>
     </div>
   );
