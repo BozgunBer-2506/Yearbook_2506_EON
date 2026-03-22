@@ -282,19 +282,13 @@ body { font-family: 'DM Sans', sans-serif; background: #000; color: #e2e8f0; ove
    ============================================ */
 @media (max-width: 600px) {
   html, body { height: auto; overflow: auto; }
-
   .app { height: auto; min-height: 100vh; overflow-x: hidden; overflow-y: auto; }
-
   .header { padding: 8px 10px; }
   .logo { font-size: 1rem; letter-spacing: 1px; }
   .logout-btn { padding: 4px 8px; font-size: 0.5rem; }
-
-  .main { padding: 8px; gap: 6px; height: auto; overflow: visible; }
-
+  .main { padding: 4px; gap: 4px; height: auto; overflow: visible; }
   .nav-btn { width: 28px; height: 28px; font-size: 0.75rem; flex-shrink: 0; }
-
-  .content { padding: 10px 8px; overflow-y: auto; height: auto; }
-
+  .content { padding: 8px 6px; overflow-y: auto; height: auto; }
   .content-page { overflow-y: auto; height: auto; }
 
   /* Course Info */
@@ -308,47 +302,49 @@ body { font-family: 'DM Sans', sans-serif; background: #000; color: #e2e8f0; ove
   .course-quote { font-size: 0.9rem; padding: 12px; }
   .course-quote em { font-size: 0.75rem; }
 
-  /* Teachers — mobile 2x2 */
+  /* Teachers — mobilde 2x2 */
   .teachers-grid {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(2, 1fr);
-    gap: 8px;
+    gap: 6px;
     overflow: visible;
-    height: auto;
+    height: calc(100vh - 100px);
   }
   .teacher-card {
-    min-height: 140px;
-    padding: 10px 8px;
+    padding: 12px 8px;
     justify-content: center;
+    background: rgba(0, 20, 50, 0.7);
+    border: 1px solid rgba(0, 229, 204, 0.25);
+    border-radius: 12px;
   }
-  .teacher-card:hover { background: rgba(0,229,204,0.04); border-color: rgba(0,229,204,0.15); box-shadow: none; }
-  .teacher-card:active { background: rgba(0,229,204,0.12); border-color: #00e5cc; transform: scale(0.97); }
-  .avatar.large { width: 52px; height: 52px; margin: 0 auto 8px auto; }
-  .avatar.large .initials { font-size: 1.1rem; }
-  .teacher-card .name { font-size: 0.82rem; }
-  .teacher-card .role { font-size: 0.65rem; }
-  .teacher-card .email { font-size: 0.52rem; }
+  .teacher-card:active { background: rgba(0, 229, 204, 0.12); border-color: #00e5cc; transform: scale(0.97); }
+  .avatar.large { width: 80px !important; height: 80px !important; margin: 0 auto 8px auto; }
+  .avatar.large .initials { font-size: 1.6rem !important; }
+  .teacher-card .name { font-size: 1rem !important; }
+  .teacher-card .role { font-size: 0.8rem !important; }
+  .teacher-card .email { font-size: 0.65rem !important; }
 
   /* Students — mobile 2x2 */
-  .students-grid {
+   .students-grid {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(2, 1fr);
-    gap: 8px;
+    gap: 6px;
     overflow: visible;
-    height: auto;
+    height: calc(100vh - 140px);
   }
   .student-card {
-    min-height: 140px;
-    padding: 10px 8px;
+    padding: 12px 8px;
     justify-content: center;
+    background: rgba(0, 20, 50, 0.7);
+    border: 1px solid rgba(0, 229, 204, 0.25);
+    border-radius: 12px;
   }
-  .student-card:hover { border-color: rgba(0,229,204,0.25); box-shadow: none; transform: none; }
-  .student-card:active { background: rgba(0,229,204,0.1); border-color: #00e5cc; transform: scale(0.97); }
-  .student-card .avatar { width: 52px !important; height: 52px !important; margin: 0 auto 8px auto; }
-  .student-card .initials { font-size: 1rem !important; }
-  .student-card .name { font-size: 0.82rem !important; }
-  .student-card .card-email { display: none !important; }
-  .student-card .card-motto { display: none !important; }
+  .student-card:active { background: rgba(0, 229, 204, 0.1); border-color: #00e5cc; transform: scale(0.97); }
+  .student-card .avatar { width: 80px !important; height: 80px !important; margin: 0 auto 8px auto; }
+  .student-card .initials { font-size: 1.4rem !important; }
+  .student-card .name { font-size: 1rem !important; }
+  .student-card .card-email { display: block !important; font-size: 0.65rem !important; color: #94a3b8; }
+  .student-card .card-motto { display: block !important; font-size: 0.7rem !important; color: rgba(160,200,232,0.7); font-style: italic; }
 
   /* Pagination */
   .pagination { gap: 10px; margin-top: 10px; }
