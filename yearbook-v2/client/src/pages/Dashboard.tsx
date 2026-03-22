@@ -64,9 +64,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
+    if (userData) setUser(JSON.parse(userData));
     fetchData();
   }, []);
 
@@ -81,7 +79,6 @@ export default function Dashboard() {
       setTeachers(tData);
       setStudents(sData);
 
-      // F5 restore
       const saved = localStorage.getItem('currentView');
       if (saved) {
         const view = JSON.parse(saved);
@@ -218,6 +215,7 @@ export default function Dashboard() {
         <button className="nav-btn" onClick={prevPage} disabled={currentIndex === 0 || !!selectedTeacher || !!selectedStudent}>◀</button>
 
         <div className="content">
+
           {/* Course Info */}
           {page === 'course' && !selectedTeacher && !selectedStudent && (
             <div className="content-page">
@@ -230,17 +228,10 @@ export default function Dashboard() {
                 <div className="info-item"><span className="info-label">ZEITRAUM</span><span className="info-value">Juni 2025 – März 2026</span></div>
                 <div className="info-item"><span className="info-label">INSTITUT</span><span className="info-value">Syntax Institut</span></div>
               </div>
-
-              {/* TEAM section */}
               <div className="section-label" style={{ marginTop: '24px', marginBottom: '12px' }}>// TEAM & LEHRKOLLEGIUM</div>
               {teachers.slice(0, 4).map(t => (
                 <div key={t.id} className="info-item" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
-                  <div style={{
-                    width: '48px', height: '48px', borderRadius: '50%',
-                    border: '1.5px solid #4db8ff', overflow: 'hidden', flexShrink: 0,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#4db8ff', fontSize: '0.9rem', background: 'rgba(77,184,255,0.1)'
-                  }}>
+                  <div style={{ width: '48px', height: '48px', borderRadius: '50%', border: '1.5px solid #4db8ff', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4db8ff', fontSize: '0.9rem', background: 'rgba(77,184,255,0.1)' }}>
                     {t.profile_picture_url
                       ? <img src={getImageUrl(t.profile_picture_url)} alt={t.first_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       : <span>{initials(t.first_name, t.last_name)}</span>
@@ -253,7 +244,6 @@ export default function Dashboard() {
                   </div>
                 </div>
               ))}
-
               <div className="course-quote" style={{ marginTop: '24px' }}>„Wer die Cloud beherrscht,<br />gestaltet die digitale Zukunft."<em>— Syntax Institut</em></div>
             </div>
           )}
@@ -301,7 +291,6 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-              )}
             </div>
           )}
 
@@ -341,10 +330,7 @@ export default function Dashboard() {
                 <form className="message-form" onSubmit={(e) => {
                   e.preventDefault();
                   const input = (e.target as HTMLFormElement).querySelector('input') as HTMLInputElement;
-                  if (input?.value.trim()) {
-                    handleSendMessage(input.value);
-                    input.value = '';
-                  }
+                  if (input?.value.trim()) { handleSendMessage(input.value); input.value = ''; }
                 }}>
                   <input type="text" placeholder="Nachricht schreiben..." className="msg-input" />
                   <button type="submit" className="msg-send">SENDEN</button>
@@ -389,10 +375,7 @@ export default function Dashboard() {
                 <form className="message-form" onSubmit={(e) => {
                   e.preventDefault();
                   const input = (e.target as HTMLFormElement).querySelector('input') as HTMLInputElement;
-                  if (input?.value.trim()) {
-                    handleSendMessage(input.value);
-                    input.value = '';
-                  }
+                  if (input?.value.trim()) { handleSendMessage(input.value); input.value = ''; }
                 }}>
                   <input type="text" placeholder="Nachricht schreiben..." className="msg-input" />
                   <button type="submit" className="msg-send">SENDEN</button>
@@ -400,6 +383,7 @@ export default function Dashboard() {
               </div>
             </div>
           )}
+
         </div>
 
         <button className="nav-btn" onClick={nextPage} disabled={currentIndex === pages.length - 1 || !!selectedTeacher || !!selectedStudent}>▶</button>
