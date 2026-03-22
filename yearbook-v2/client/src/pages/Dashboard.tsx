@@ -76,8 +76,13 @@ export default function Dashboard() {
 
   const studentsPerPage = window.innerWidth < 768 ? 4 : 9;
   const validStudents = students.slice(0, 26);
-  const currentStudents = validStudents.slice(studentPage * studentsPerPage, (studentPage + 1) * studentsPerPage);
-  const totalStudentPages = Math.ceil(validStudents.length / studentsPerPage);  useEffect(() => {
+  const totalStudentPages = Math.ceil(validStudents.length / studentsPerPage);
+  const currentStudents = validStudents.slice(
+    studentPage * studentsPerPage,
+    (studentPage + 1) * studentsPerPage
+  );
+
+  useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
     if (token && userData) {
@@ -297,6 +302,10 @@ export default function Dashboard() {
 
   const nextPage = () => {
     if (selectedTeacher || selectedStudent) return;
+    if (page === 'students' && studentPage < totalStudentPages - 1) {
+      setStudentPage(studentPage + 1);
+      return;
+    }
     if (currentIndex < pages.length - 1) {
       const newPage = pages[currentIndex + 1] as 'course' | 'teachers' | 'students';
       setPage(newPage);
@@ -307,6 +316,10 @@ export default function Dashboard() {
 
   const prevPage = () => {
     if (selectedTeacher || selectedStudent) return;
+    if (page === 'students' && studentPage > 0) {
+      setStudentPage(studentPage - 1);
+      return;
+    }
     if (currentIndex > 0) {
       const newPage = pages[currentIndex - 1] as 'course' | 'teachers' | 'students';
       setPage(newPage);
@@ -327,6 +340,7 @@ export default function Dashboard() {
     }
   };
 
+  // Flash önleme: loading true iken hiçbir şey render etme
   if (loading) return <div className="loading">LÄDT...</div>;
 
   if (!isLoggedIn) {
@@ -337,75 +351,41 @@ export default function Dashboard() {
         </header>
         <main className="main" style={{ justifyContent: 'center', alignItems: 'center' }}>
           <div className="content-page" style={{ maxWidth: '400px', width: '100%' }}>
-
-            {/* RESET FORMU */}
             {showReset ? (
               <>
                 <div className="section-label" style={{ marginBottom: '24px' }}>PASSWORT ZURÜCKSETZEN</div>
                 <form onSubmit={handleReset}>
                   <div style={{ marginBottom: '12px' }}>
-                    <input
-                      type="email"
-                      placeholder="E-Mail"
-                      value={resetEmail}
+                    <input type="email" placeholder="E-Mail" value={resetEmail}
                       onChange={e => setResetEmail(e.target.value)}
-                      className="msg-input"
-                      style={{ width: '100%' }}
-                      required
-                    />
+                      className="msg-input" style={{ width: '100%' }} required />
                   </div>
                   <div style={{ marginBottom: '12px' }}>
-                    <input
-                      type="password"
-                      placeholder="Neues Passwort"
-                      value={resetPassword}
+                    <input type="password" placeholder="Neues Passwort" value={resetPassword}
                       onChange={e => setResetPassword(e.target.value)}
-                      className="msg-input"
-                      style={{ width: '100%' }}
-                      required
-                    />
+                      className="msg-input" style={{ width: '100%' }} required />
                   </div>
                   <div style={{ marginBottom: '20px' }}>
-                    <input
-                      type="text"
-                      placeholder="Klassencode"
-                      value={resetCode}
+                    <input type="text" placeholder="Klassencode" value={resetCode}
                       onChange={e => setResetCode(e.target.value)}
-                      className="msg-input"
-                      style={{ width: '100%' }}
-                      required
-                    />
+                      className="msg-input" style={{ width: '100%' }} required />
                   </div>
-                  {resetError && (
-                    <div style={{ color: '#ff6b6b', fontSize: '0.85rem', marginBottom: '12px', textAlign: 'center' }}>
-                      {resetError}
-                    </div>
-                  )}
-                  {resetSuccess && (
-                    <div style={{ color: '#00e5cc', fontSize: '0.85rem', marginBottom: '12px', textAlign: 'center' }}>
-                      {resetSuccess}
-                    </div>
-                  )}
-                  <button
-                    type="submit"
-                    className="msg-send"
+                  {resetError && <div style={{ color: '#ff6b6b', fontSize: '0.85rem', marginBottom: '12px', textAlign: 'center' }}>{resetError}</div>}
+                  {resetSuccess && <div style={{ color: '#00e5cc', fontSize: '0.85rem', marginBottom: '12px', textAlign: 'center' }}>{resetSuccess}</div>}
+                  <button type="submit" className="msg-send"
                     style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
-                    disabled={resetLoading}
-                  >
+                    disabled={resetLoading}>
                     {resetLoading ? 'LÄDT...' : 'ZURÜCKSETZEN'}
                   </button>
                 </form>
                 <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                  <button
-                    onClick={() => { setShowReset(false); setResetError(''); setResetSuccess(''); }}
-                    style={{ background: 'none', border: 'none', color: '#00e5cc', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline' }}
-                  >
+                  <button onClick={() => { setShowReset(false); setResetError(''); setResetSuccess(''); }}
+                    style={{ background: 'none', border: 'none', color: '#00e5cc', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline' }}>
                     ← Zurück zum Login
                   </button>
                 </div>
               </>
             ) : (
-              /* LOGIN / REGISTER FORMU */
               <>
                 <div className="section-label" style={{ marginBottom: '24px' }}>
                   {authMode === 'login' ? 'ANMELDEN' : 'REGISTRIEREN'}
@@ -414,79 +394,44 @@ export default function Dashboard() {
                   {authMode === 'register' && (
                     <>
                       <div style={{ marginBottom: '12px' }}>
-                        <input
-                          type="text"
-                          placeholder="Vorname"
-                          value={authFirstName}
+                        <input type="text" placeholder="Vorname" value={authFirstName}
                           onChange={e => setAuthFirstName(e.target.value)}
-                          className="msg-input"
-                          style={{ width: '100%' }}
-                          required
-                        />
+                          className="msg-input" style={{ width: '100%' }} required />
                       </div>
                       <div style={{ marginBottom: '12px' }}>
-                        <input
-                          type="text"
-                          placeholder="Nachname"
-                          value={authLastName}
+                        <input type="text" placeholder="Nachname" value={authLastName}
                           onChange={e => setAuthLastName(e.target.value)}
-                          className="msg-input"
-                          style={{ width: '100%' }}
-                          required
-                        />
+                          className="msg-input" style={{ width: '100%' }} required />
                       </div>
                     </>
                   )}
                   <div style={{ marginBottom: '12px' }}>
-                    <input
-                      type="email"
-                      placeholder="E-Mail"
-                      value={authEmail}
+                    <input type="email" placeholder="E-Mail" value={authEmail}
                       onChange={e => setAuthEmail(e.target.value)}
-                      className="msg-input"
-                      style={{ width: '100%' }}
-                      required
-                    />
+                      className="msg-input" style={{ width: '100%' }} required />
                   </div>
                   <div style={{ marginBottom: '20px' }}>
-                    <input
-                      type="password"
-                      placeholder="Passwort"
-                      value={authPassword}
+                    <input type="password" placeholder="Passwort" value={authPassword}
                       onChange={e => setAuthPassword(e.target.value)}
-                      className="msg-input"
-                      style={{ width: '100%' }}
-                      required
-                    />
+                      className="msg-input" style={{ width: '100%' }} required />
                   </div>
-                  {authError && (
-                    <div style={{ color: '#ff6b6b', fontSize: '0.85rem', marginBottom: '12px', textAlign: 'center' }}>
-                      {authError}
-                    </div>
-                  )}
-                  <button
-                    type="submit"
-                    className="msg-send"
+                  {authError && <div style={{ color: '#ff6b6b', fontSize: '0.85rem', marginBottom: '12px', textAlign: 'center' }}>{authError}</div>}
+                  <button type="submit" className="msg-send"
                     style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
-                    disabled={authLoading}
-                  >
+                    disabled={authLoading}>
                     {authLoading ? 'LÄDT...' : authMode === 'login' ? 'ANMELDEN' : 'REGISTRIEREN'}
                   </button>
                 </form>
                 <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                  <button
-                    onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setAuthError(''); }}
-                    style={{ background: 'none', border: 'none', color: '#00e5cc', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline' }}
-                  >
+                  <button onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setAuthError(''); }}
+                    style={{ background: 'none', border: 'none', color: '#00e5cc', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline' }}>
                     {authMode === 'login' ? 'Noch kein Konto? Registrieren' : 'Bereits registriert? Anmelden'}
                   </button>
                 </div>
                 {authMode === 'login' && (
                   <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                    <button
-                      onClick={() => { setShowReset(true); setAuthError(''); }}
-                      style={{ background: 'none', border: 'none', color: 'rgba(0,229,204,0.5)', cursor: 'pointer', fontSize: '0.8rem', textDecoration: 'underline' }}
-                    >
+                    <button onClick={() => { setShowReset(true); setAuthError(''); }}
+                      style={{ background: 'none', border: 'none', color: 'rgba(0,229,204,0.5)', cursor: 'pointer', fontSize: '0.8rem', textDecoration: 'underline' }}>
                       Passwort vergessen?
                     </button>
                   </div>
@@ -509,7 +454,8 @@ export default function Dashboard() {
       </header>
 
       <main className="main" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-        <button className="nav-btn" onClick={prevPage} disabled={currentIndex === 0 || !!selectedTeacher || !!selectedStudent}>◀</button>
+        <button className="nav-btn" onClick={prevPage}
+          disabled={currentIndex === 0 && studentPage === 0 || !!selectedTeacher || !!selectedStudent}>◀</button>
 
         <div className="content">
 
@@ -525,21 +471,20 @@ export default function Dashboard() {
                 <div className="info-item"><span className="info-label">INSTITUT</span><span className="info-value">Syntax Institut</span></div>
               </div>
               <div className="section-label" style={{ marginTop: '24px', marginBottom: '12px' }}>// TEAM & LEHRKOLLEGIUM</div>
-              {teachers.slice(0, 4).map(t => (
-                <div key={t.id} className="info-item" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
-                  <div style={{ width: '48px', height: '48px', borderRadius: '50%', border: '1.5px solid #4db8ff', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4db8ff', fontSize: '0.9rem', background: 'rgba(77,184,255,0.1)' }}>
-                    {t.profile_picture_url
-                      ? <img src={getImageUrl(t.profile_picture_url)} alt={t.first_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : <span>{initials(t.first_name, t.last_name)}</span>
-                    }
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                {teachers.slice(0, 4).map(t => (
+                  <div key={t.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '12px', background: 'rgba(0,229,204,0.04)', border: '1px solid rgba(0,229,204,0.15)', borderRadius: '8px', textAlign: 'center' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '50%', border: '1.5px solid #00e5cc', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00e5cc', fontSize: '0.9rem', background: 'rgba(0,229,204,0.1)', flexShrink: 0 }}>
+                      {t.profile_picture_url
+                        ? <img src={getImageUrl(t.profile_picture_url)} alt={t.first_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        : <span>{initials(t.first_name, t.last_name)}</span>
+                      }
+                    </div>
+                    <span style={{ color: '#e0f0ff', fontSize: '0.85rem', fontWeight: 500 }}>{t.first_name} {t.last_name}</span>
+                    <span style={{ color: '#00e5cc', fontSize: '0.72rem' }}>{t.role}</span>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                    <span style={{ color: '#e0f0ff', fontSize: '0.9rem', fontWeight: 500 }}>{t.first_name} {t.last_name}</span>
-                    <span style={{ color: '#4db8ff', fontSize: '0.78rem' }}>{t.role}</span>
-                    <span style={{ color: 'rgba(160,200,232,0.5)', fontSize: '0.72rem' }}>{t.email}</span>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
               <div className="course-quote" style={{ marginTop: '24px' }}>„Wer die Cloud beherrscht,<br />gestaltet die digitale Zukunft."<em>— Syntax Institut</em></div>
             </div>
           )}
@@ -585,15 +530,15 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-               {totalStudentPages > 1 && (
-                  <div className="pagination">
-                    <button className="page-btn" onClick={() => setStudentPage(p => Math.max(0, p - 1))} disabled={studentPage === 0}>◀</button>
-                    <span className="page-num">{studentPage + 1} / {totalStudentPages}</span>
-                    <button className="page-btn" onClick={() => setStudentPage(p => Math.min(totalStudentPages - 1, p + 1))} disabled={studentPage === totalStudentPages - 1}>▶</button>
-                  </div>
-                )}
-              </div>
-            )}
+              {totalStudentPages > 1 && (
+                <div className="pagination">
+                  <button className="page-btn" onClick={() => setStudentPage(p => Math.max(0, p - 1))} disabled={studentPage === 0}>◀</button>
+                  <span className="page-num">{studentPage + 1} / {totalStudentPages}</span>
+                  <button className="page-btn" onClick={() => setStudentPage(p => Math.min(totalStudentPages - 1, p + 1))} disabled={studentPage === totalStudentPages - 1}>▶</button>
+                </div>
+              )}
+            </div>
+          )}
 
           {selectedTeacher && (
             <div className="content-page profile-page">
@@ -685,7 +630,8 @@ export default function Dashboard() {
 
         </div>
 
-        <button className="nav-btn" onClick={nextPage} disabled={currentIndex === pages.length - 1 || !!selectedTeacher || !!selectedStudent}>▶</button>
+        <button className="nav-btn" onClick={nextPage}
+          disabled={(currentIndex === pages.length - 1 && studentPage === totalStudentPages - 1) || !!selectedTeacher || !!selectedStudent}>▶</button>
       </main>
     </div>
   );
