@@ -7,14 +7,10 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Dashboard from "./pages/Dashboard";
 
 function Router() {
-  const isLoggedIn = !!localStorage.getItem('token');
-
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
-      <Route path="/dashboard">
-        {isLoggedIn ? <Dashboard /> : (() => { window.location.href = "/"; return null; })()}
-      </Route>
+      <Route path="/dashboard" component={Dashboard} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
