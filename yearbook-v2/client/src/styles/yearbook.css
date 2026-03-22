@@ -1176,43 +1176,59 @@ body {
   }
   .course-quote em { font-size: 0.75rem; }
   
-/* Teachers Grid */
-.teachers-grid { 
-    grid-template-columns: 1fr; 
-    gap: 10px;
-    overflow-y: auto;
-    width: 100%;
-  }
-  .teacher-card { 
-    padding: 12px;
-    flex-direction: row;
-    text-align: left;
-    gap: 10px;
-    width: 100%;
-    box-sizing: border-box;
-    overflow: visible;
-  }
-  .avatar.large { 
-    width: 50px; 
-    height: 50px; 
-    flex-shrink: 0;
-  }
-  .avatar.large .initials { font-size: 1.2rem; }
-  .teacher-card .name { font-size: 0.95rem; }
-  .teacher-card .role { font-size: 0.7rem; }
-  .teacher-card .email { font-size: 0.6rem; }
+/* Teachers Grid - mobilde 2x2 */
+.teachers-grid {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.teacher-card {
+  padding: 12px 8px;
+  flex-direction: column;
+  text-align: center;
+  gap: 0;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 160px;
+  justify-content: center;
+}
+
+.avatar.large {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  margin: 0 auto 8px auto;
+}
+
+.avatar.large .initials { font-size: 1.2rem; }
+.teacher-card .name { font-size: 0.85rem; }
+.teacher-card .role { font-size: 0.65rem; }
+.teacher-card .email { font-size: 0.55rem; }
   
-  /* Students Grid */
-  .students-grid { 
-    grid-template-columns: repeat(2, 1fr); 
-    gap: 8px;
-    overflow-y: auto;
-  }
-  .student-card { padding: 10px 6px; }
-  .student-card .avatar { width: 40px; height: 40px; margin-bottom: 6px; }
-  .student-card .initials { font-size: 0.8rem; }
-  .student-card .name { font-size: 0.75rem; }
-  .student-card .card-email { font-size: 0.55rem; display: none; }
+  /* Students Grid - mobilde 2x2, aynı boy */
+.students-grid {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.student-card {
+  padding: 12px 8px;
+  min-height: 160px;
+  justify-content: center;
+}
+
+.student-card .avatar {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 8px;
+}
+
+.student-card .initials { font-size: 1rem; }
+.student-card .name { font-size: 0.85rem; }
+.student-card .card-email { font-size: 0.55rem; display: none; }
   
   /* Pagination */
   .pagination { gap: 10px; margin-top: 10px; }
@@ -1330,29 +1346,30 @@ body {
 }
 
 @media (max-width: 768px) {
-  body { overflow-x: hidden; }
-  .teachers-list { grid-template-columns: 1fr !important; }
-  .students-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px;
-    padding: 12px;
+  .teacher-card:hover {
+    background: rgba(0, 229, 204, 0.04);
+    border-color: rgba(0, 229, 204, 0.15);
+    box-shadow: none;
   }
-  .student-card {
-    min-height: 180px !important;
-    padding: 20px 12px !important;
+
+  .teacher-card:active {
+    background: rgba(0, 229, 204, 0.12);
+    border-color: #00e5cc;
+    box-shadow: 0 0 15px rgba(0, 229, 204, 0.2);
+    transform: scale(0.97);
   }
-  .student-card .avatar {
-    width: 80px !important;
-    height: 80px !important;
-    font-size: 1.5rem !important;
+
+  .student-card:hover {
+    border-color: rgba(0, 229, 204, 0.25);
+    box-shadow: none;
+    transform: none;
   }
-  .student-card .name {
-    font-size: 0.9rem !important;
-    display: block !important;
-  }
-  .student-card .card-email,
-  .student-card .card-motto {
-    display: none !important;
+
+  .student-card:active {
+    background: rgba(0, 229, 204, 0.1);
+    border-color: #00e5cc;
+    box-shadow: 0 0 15px rgba(0, 229, 204, 0.2);
+    transform: scale(0.97);
   }
 }
 

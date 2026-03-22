@@ -46,7 +46,24 @@ interface User {
 }
 
 export default function Dashboard() {
-  const [user, setUser] = useState<User | null>(null);
+  const [_user, setUser] = useState<User | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authFirstName, setAuthFirstName] = useState('');
+  const [authLastName, setAuthLastName] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+
+  const [showReset, setShowReset] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetPassword, setResetPassword] = useState('');
+  const [resetCode, setResetCode] = useState('');
+  const [resetError, setResetError] = useState('');
+  const [resetSuccess, setResetSuccess] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+
   const [page, setPage] = useState<'course' | 'teachers' | 'students'>('course');
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
@@ -59,13 +76,18 @@ export default function Dashboard() {
 
   const studentsPerPage = window.innerWidth < 768 ? 4 : 9;
   const validStudents = students.slice(0, 26);
-  const totalStudentPages = Math.ceil(validStudents.length / studentsPerPage);
   const currentStudents = validStudents.slice(studentPage * studentsPerPage, (studentPage + 1) * studentsPerPage);
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
-    if (userData) setUser(JSON.parse(userData));
-    fetchData();
+    if (token && userData) {
+      setUser(JSON.parse(userData));
+      setIsLoggedIn(true);
+      fetchData();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const fetchData = async () => {
@@ -78,6 +100,11 @@ export default function Dashboard() {
       const sData = await sRes.json();
       setTeachers(tData);
       setStudents(sData);
+
+      const savedPage = localStorage.getItem('currentPage');
+      if (savedPage === 'teachers' || savedPage === 'students' || savedPage === 'course') {
+        setPage(savedPage);
+      }
 
       const saved = localStorage.getItem('currentView');
       if (saved) {
@@ -104,6 +131,93 @@ export default function Dashboard() {
       console.error('Error fetching data:', e);
     }
     setLoading(false);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+    setAuthLoading(true);
+    try {
+      const res = await fetch(`${API}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: authEmail, password: authPassword })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setAuthError(data.error || data.message || 'Login fehlgeschlagen');
+      } else {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUser(data.user);
+        setIsLoggedIn(true);
+        fetchData();
+      }
+    } catch {
+      setAuthError('Verbindungsfehler');
+    }
+    setAuthLoading(false);
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+    setAuthLoading(true);
+    try {
+      const res = await fetch(`${API}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: authEmail,
+          password: authPassword,
+          firstName: authFirstName,
+          lastName: authLastName
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setAuthError(data.error || data.message || 'Registrierung fehlgeschlagen');
+      } else {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUser(data.user);
+        setIsLoggedIn(true);
+        fetchData();
+      }
+    } catch {
+      setAuthError('Verbindungsfehler');
+    }
+    setAuthLoading(false);
+  };
+
+  const handleReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetError('');
+    setResetSuccess('');
+    setResetLoading(true);
+    try {
+      const res = await fetch(`${API}/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail, newPassword: resetPassword, classCode: resetCode })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setResetError(data.error || 'Fehler beim Zurücksetzen');
+      } else {
+        setResetSuccess('Passwort erfolgreich zurückgesetzt!');
+        setTimeout(() => {
+          setShowReset(false);
+          setResetEmail('');
+          setResetPassword('');
+          setResetCode('');
+          setResetSuccess('');
+        }, 2000);
+      }
+    } catch {
+      setResetError('Verbindungsfehler');
+    }
+    setResetLoading(false);
   };
 
   const fetchTeacherMessages = async (teacherId: number) => {
@@ -166,7 +280,17 @@ export default function Dashboard() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('currentView');
-    window.location.reload();
+    localStorage.removeItem('currentPage');
+    setUser(null);
+    setIsLoggedIn(false);
+    setAuthEmail('');
+    setAuthPassword('');
+    setAuthFirstName('');
+    setAuthLastName('');
+    setAuthError('');
+    setPage('course');
+    setSelectedTeacher(null);
+    setSelectedStudent(null);
   };
 
   const pages = ['course', 'teachers', 'students'];
@@ -175,7 +299,9 @@ export default function Dashboard() {
   const nextPage = () => {
     if (selectedTeacher || selectedStudent) return;
     if (currentIndex < pages.length - 1) {
-      setPage(pages[currentIndex + 1] as any);
+      const newPage = pages[currentIndex + 1] as 'course' | 'teachers' | 'students';
+      setPage(newPage);
+      localStorage.setItem('currentPage', newPage);
       setStudentPage(0);
     }
   };
@@ -183,7 +309,9 @@ export default function Dashboard() {
   const prevPage = () => {
     if (selectedTeacher || selectedStudent) return;
     if (currentIndex > 0) {
-      setPage(pages[currentIndex - 1] as any);
+      const newPage = pages[currentIndex - 1] as 'course' | 'teachers' | 'students';
+      setPage(newPage);
+      localStorage.setItem('currentPage', newPage);
       setStudentPage(0);
     }
   };
@@ -202,6 +330,176 @@ export default function Dashboard() {
 
   if (loading) return <div className="loading">LÄDT...</div>;
 
+  if (!isLoggedIn) {
+    return (
+      <div className="app">
+        <header className="header">
+          <div className="logo">EON JAHRBUCH 25-06-EON</div>
+        </header>
+        <main className="main" style={{ justifyContent: 'center', alignItems: 'center' }}>
+          <div className="content-page" style={{ maxWidth: '400px', width: '100%' }}>
+
+            {/* RESET FORMU */}
+            {showReset ? (
+              <>
+                <div className="section-label" style={{ marginBottom: '24px' }}>PASSWORT ZURÜCKSETZEN</div>
+                <form onSubmit={handleReset}>
+                  <div style={{ marginBottom: '12px' }}>
+                    <input
+                      type="email"
+                      placeholder="E-Mail"
+                      value={resetEmail}
+                      onChange={e => setResetEmail(e.target.value)}
+                      className="msg-input"
+                      style={{ width: '100%' }}
+                      required
+                    />
+                  </div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <input
+                      type="password"
+                      placeholder="Neues Passwort"
+                      value={resetPassword}
+                      onChange={e => setResetPassword(e.target.value)}
+                      className="msg-input"
+                      style={{ width: '100%' }}
+                      required
+                    />
+                  </div>
+                  <div style={{ marginBottom: '20px' }}>
+                    <input
+                      type="text"
+                      placeholder="Klassencode"
+                      value={resetCode}
+                      onChange={e => setResetCode(e.target.value)}
+                      className="msg-input"
+                      style={{ width: '100%' }}
+                      required
+                    />
+                  </div>
+                  {resetError && (
+                    <div style={{ color: '#ff6b6b', fontSize: '0.85rem', marginBottom: '12px', textAlign: 'center' }}>
+                      {resetError}
+                    </div>
+                  )}
+                  {resetSuccess && (
+                    <div style={{ color: '#00e5cc', fontSize: '0.85rem', marginBottom: '12px', textAlign: 'center' }}>
+                      {resetSuccess}
+                    </div>
+                  )}
+                  <button
+                    type="submit"
+                    className="msg-send"
+                    style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
+                    disabled={resetLoading}
+                  >
+                    {resetLoading ? 'LÄDT...' : 'ZURÜCKSETZEN'}
+                  </button>
+                </form>
+                <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                  <button
+                    onClick={() => { setShowReset(false); setResetError(''); setResetSuccess(''); }}
+                    style={{ background: 'none', border: 'none', color: '#00e5cc', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline' }}
+                  >
+                    ← Zurück zum Login
+                  </button>
+                </div>
+              </>
+            ) : (
+              /* LOGIN / REGISTER FORMU */
+              <>
+                <div className="section-label" style={{ marginBottom: '24px' }}>
+                  {authMode === 'login' ? 'ANMELDEN' : 'REGISTRIEREN'}
+                </div>
+                <form onSubmit={authMode === 'login' ? handleLogin : handleRegister}>
+                  {authMode === 'register' && (
+                    <>
+                      <div style={{ marginBottom: '12px' }}>
+                        <input
+                          type="text"
+                          placeholder="Vorname"
+                          value={authFirstName}
+                          onChange={e => setAuthFirstName(e.target.value)}
+                          className="msg-input"
+                          style={{ width: '100%' }}
+                          required
+                        />
+                      </div>
+                      <div style={{ marginBottom: '12px' }}>
+                        <input
+                          type="text"
+                          placeholder="Nachname"
+                          value={authLastName}
+                          onChange={e => setAuthLastName(e.target.value)}
+                          className="msg-input"
+                          style={{ width: '100%' }}
+                          required
+                        />
+                      </div>
+                    </>
+                  )}
+                  <div style={{ marginBottom: '12px' }}>
+                    <input
+                      type="email"
+                      placeholder="E-Mail"
+                      value={authEmail}
+                      onChange={e => setAuthEmail(e.target.value)}
+                      className="msg-input"
+                      style={{ width: '100%' }}
+                      required
+                    />
+                  </div>
+                  <div style={{ marginBottom: '20px' }}>
+                    <input
+                      type="password"
+                      placeholder="Passwort"
+                      value={authPassword}
+                      onChange={e => setAuthPassword(e.target.value)}
+                      className="msg-input"
+                      style={{ width: '100%' }}
+                      required
+                    />
+                  </div>
+                  {authError && (
+                    <div style={{ color: '#ff6b6b', fontSize: '0.85rem', marginBottom: '12px', textAlign: 'center' }}>
+                      {authError}
+                    </div>
+                  )}
+                  <button
+                    type="submit"
+                    className="msg-send"
+                    style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
+                    disabled={authLoading}
+                  >
+                    {authLoading ? 'LÄDT...' : authMode === 'login' ? 'ANMELDEN' : 'REGISTRIEREN'}
+                  </button>
+                </form>
+                <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                  <button
+                    onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setAuthError(''); }}
+                    style={{ background: 'none', border: 'none', color: '#00e5cc', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline' }}
+                  >
+                    {authMode === 'login' ? 'Noch kein Konto? Registrieren' : 'Bereits registriert? Anmelden'}
+                  </button>
+                </div>
+                {authMode === 'login' && (
+                  <div style={{ textAlign: 'center', marginTop: '10px' }}>
+                    <button
+                      onClick={() => { setShowReset(true); setAuthError(''); }}
+                      style={{ background: 'none', border: 'none', color: 'rgba(0,229,204,0.5)', cursor: 'pointer', fontSize: '0.8rem', textDecoration: 'underline' }}
+                    >
+                      Passwort vergessen?
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   const initials = (first: string, last: string) => `${first?.[0] || ''}${last?.[0] || ''}`.toUpperCase();
 
   return (
@@ -216,7 +514,6 @@ export default function Dashboard() {
 
         <div className="content">
 
-          {/* Course Info */}
           {page === 'course' && !selectedTeacher && !selectedStudent && (
             <div className="content-page">
               <div className="section-label">ÜBER DEN KURS</div>
@@ -248,7 +545,6 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Teachers */}
           {page === 'teachers' && !selectedTeacher && !selectedStudent && (
             <div className="content-page">
               <div className="section-label">TEAM & LEHRKOLLEGIUM 2026</div>
@@ -271,7 +567,6 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Students */}
           {page === 'students' && !selectedTeacher && !selectedStudent && (
             <div className="content-page">
               <div className="section-label">UNSERE KLASSE</div>
@@ -294,7 +589,6 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Teacher Profile */}
           {selectedTeacher && (
             <div className="content-page profile-page">
               <button className="back-btn" onClick={handleBack}>← ZURÜCK</button>
@@ -339,7 +633,6 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Student Profile */}
           {selectedStudent && (
             <div className="content-page profile-page">
               <button className="back-btn" onClick={handleBack}>← ZURÜCK</button>

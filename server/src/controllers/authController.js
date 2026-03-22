@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'yearbook2506secretkey123';
 
-// Fixed 26 students + 4 teachers = 30 valid emails (lowercase)
 const VALID_EMAILS = [
   'jacob@techstarter.de',
   'kevin@techstarter.de',
@@ -57,16 +56,13 @@ exports.register = async (req, res) => {
   }
 
   try {
-// Normalize email - lowercase and trim
     const normalizedEmail = email.toLowerCase().trim();
-    
-    // Check if already exists
+
     const existing = await db.query('SELECT id FROM users WHERE LOWER(email) = $1', [normalizedEmail]);
     if (existing.rows.length > 0) {
       return res.status(409).json({ error: 'Diese E-Mail ist bereits registriert.' });
     }
 
-    // Determine role based on email
     let role = 'guest';
     if (VALID_EMAILS.includes(normalizedEmail)) {
       role = TEACHER_EMAILS.includes(normalizedEmail) ? 'teacher' : 'student';
@@ -74,7 +70,6 @@ exports.register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Store as lowercase
     const userResult = await db.query(
       `INSERT INTO users (email, password_hash, first_name, last_name, role, is_activated)
        VALUES ($1, $2, $3, $4, $5, true) RETURNING *`,
@@ -114,7 +109,6 @@ exports.login = async (req, res) => {
   }
 
   try {
-    // Normalize email to lowercase for login
     const normalizedEmail = email.toLowerCase();
     const result = await db.query('SELECT * FROM users WHERE LOWER(email) = $1', [normalizedEmail]);
 
@@ -154,7 +148,12 @@ exports.login = async (req, res) => {
 
 // POST /api/auth/reset-password
 exports.resetPassword = async (req, res) => {
-  const { email, newPassword } = req.body;
+  const { email, newPassword, classCode } = req.body;
+
+  // Sınıf kodu kontrolü — en başta
+  if (classCode !== '2506') {
+    return res.status(403).json({ error: 'Ungültiger Klassencode.' });
+  }
 
   if (!email || !newPassword) {
     return res.status(400).json({ error: 'E-Mail und neues Passwort erforderlich.' });
