@@ -389,7 +389,7 @@ export default function Dashboard() {
     return (
       <div className="app">
         <header className="header">
-          <div className="logo">EON JAHRBUCH 25-06-EON</div>
+          <div className="logo">JAHRBUCH 25-06-EON</div>
         </header>
         <main className="main" style={{ justifyContent: 'center', alignItems: 'center' }}>
           <div className="content-page" style={{ maxWidth: '400px', width: '100%' }}>
