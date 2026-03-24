@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('cloudinary').v2;
 const authMiddleware = require('../middleware/authMiddleware');
 const db = require('../config/db');
@@ -13,20 +12,36 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Configure Cloudinary storage for multer
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'yearbook-avatars',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-    transformation: [{ width: 400, height: 400, crop: 'fill', gravity: 'face' }],
+// Use memory storage — file is uploaded to Cloudinary via stream, not saved to disk
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(file.originalname.toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (extname && mimetype) return cb(null, true);
+    cb(new Error('Only image files are accepted (jpeg, jpg, png, gif, webp)'));
   },
 });
 
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-});
+// Helper: upload buffer to Cloudinary via stream
+const uploadToCloudinary = (buffer, userId) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'yearbook-avatars',
+        public_id: `user_${userId}_${Date.now()}`,
+        transformation: [{ width: 400, height: 400, crop: 'fill', gravity: 'face' }],
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+    stream.end(buffer);
+  });
+};
 
 // Upload profile picture
 router.post('/profile-picture', authMiddleware.verifyToken, upload.single('picture'), async (req, res) => {
@@ -36,10 +51,12 @@ router.post('/profile-picture', authMiddleware.verifyToken, upload.single('pictu
     }
 
     const userId = req.user.id;
-    // Cloudinary returns the secure URL in req.file.path
-    const profilePictureUrl = req.file.path;
 
-    // Update user profile picture in users table
+    // Upload to Cloudinary
+    const result = await uploadToCloudinary(req.file.buffer, userId);
+    const profilePictureUrl = result.secure_url;
+
+    // Update users table
     await db.query(
       'UPDATE users SET profile_picture_url = $1 WHERE id = $2',
       [profilePictureUrl, userId]
