@@ -541,7 +541,7 @@ export default function Dashboard() {
   return (
     <div className="app">
       <header className="header">
-        <div className="logo">EON JAHRBUCH 25-06-EON</div>
+        <div className="logo">JAHRBUCH 25-06-EON</div>
         <button className="logout-btn" onClick={handleLogout}>LOGOUT</button>
       </header>
 
