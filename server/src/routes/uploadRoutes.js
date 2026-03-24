@@ -50,7 +50,8 @@ router.post('/profile-picture', authMiddleware.verifyToken, upload.single('pictu
       return res.status(400).json({ status: 'error', message: 'No image uploaded' });
     }
 
-    const userId = req.user.id;
+    // JWT token stores userId (not id) — must use req.user.userId
+    const userId = req.user.userId;
 
     // Upload to Cloudinary
     const result = await uploadToCloudinary(req.file.buffer, userId);
@@ -62,14 +63,15 @@ router.post('/profile-picture', authMiddleware.verifyToken, upload.single('pictu
       [profilePictureUrl, userId]
     );
 
-    // Also update students table by matching email
+    // Also update students table by matching email (case-insensitive)
     const userResult = await db.query('SELECT email FROM users WHERE id = $1', [userId]);
     if (userResult.rows.length > 0) {
       const userEmail = userResult.rows[0].email;
-      await db.query(
-        'UPDATE students SET profile_picture_url = $1 WHERE email = $2',
+      const studentUpdate = await db.query(
+        'UPDATE students SET profile_picture_url = $1 WHERE LOWER(email) = LOWER($2)',
         [profilePictureUrl, userEmail]
       );
+      console.log(`[Upload] students table updated: ${studentUpdate.rowCount} row(s) for email: ${userEmail}`);
     }
 
     res.json({

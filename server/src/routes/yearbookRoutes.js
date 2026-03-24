@@ -13,10 +13,17 @@ router.get('/teachers', async (req, res) => {
     }
 });
 
-// GET all students
+// GET all students — profile_picture_url is taken from users table first (Cloudinary URL),
+// falling back to students table value if not set in users
 router.get('/students', async (req, res) => {
     try {
-        const result = await db.query('SELECT * FROM students ORDER BY first_name ASC');
+        const result = await db.query(`
+            SELECT s.id, s.first_name, s.last_name, s.email, s.bio,
+                   COALESCE(u.profile_picture_url, s.profile_picture_url) AS profile_picture_url
+            FROM students s
+            LEFT JOIN users u ON LOWER(s.email) = LOWER(u.email)
+            ORDER BY s.first_name ASC
+        `);
         res.json(result.rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
