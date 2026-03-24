@@ -49,11 +49,21 @@ router.post('/profile-picture', authMiddleware.verifyToken, upload.single('pictu
     const userId = req.user.id;
     const profilePictureUrl = `/images/${req.file.filename}`;
 
-    // Update user profile picture in database
+    // Update user profile picture in users table
     await db.query(
       'UPDATE users SET profile_picture_url = $1 WHERE id = $2',
       [profilePictureUrl, userId]
     );
+
+    // Also update students table by matching email
+    const userResult = await db.query('SELECT email FROM users WHERE id = $1', [userId]);
+    if (userResult.rows.length > 0) {
+      const userEmail = userResult.rows[0].email;
+      await db.query(
+        'UPDATE students SET profile_picture_url = $1 WHERE email = $2',
+        [profilePictureUrl, userEmail]
+      );
+    }
 
     res.json({ 
       status: 'success', 

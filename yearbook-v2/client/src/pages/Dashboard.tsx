@@ -270,7 +270,7 @@ export default function Dashboard() {
     const file = e.target.files?.[0];
     if (!file) return;
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('picture', file);
     try {
       const res = await fetch(`${API}/upload/profile-picture`, {
         method: 'POST',
@@ -278,10 +278,10 @@ export default function Dashboard() {
         body: formData,
       });
       const data = await res.json();
-      if (res.ok && data.url) {
-        setSelectedStudent(prev => prev ? { ...prev, profile_picture_url: data.url } : prev);
+      if (res.ok && data.profile_picture_url) {
+        setSelectedStudent(prev => prev ? { ...prev, profile_picture_url: data.profile_picture_url } : prev);
         const u = JSON.parse(localStorage.getItem('user') || '{}');
-        u.profile_picture_url = data.url;
+        u.profile_picture_url = data.profile_picture_url;
         localStorage.setItem('user', JSON.stringify(u));
       }
     } catch {}
