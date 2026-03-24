@@ -16,3 +16,4 @@ build/
 .next/
 *.db
 *.sqlite
+.about.md
