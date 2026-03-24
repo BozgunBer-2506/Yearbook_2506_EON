@@ -238,9 +238,9 @@ body { font-family: 'DM Sans', sans-serif; background: #000; color: #e2e8f0; ove
 .back-btn { padding: 8px 15px; background: transparent; border: 1px solid #00e5cc; color: #00e5cc; font-family: "Space Mono", monospace; font-size: 0.55rem; cursor: pointer; margin-bottom: 15px; align-self: flex-start; }
 .back-btn:hover { background: #00e5cc; color: #000; }
 .profile-header { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(0,229,204,0.15); flex-shrink: 0; }
-.profile-avatar { width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(0,229,204,0.15), rgba(0,229,204,0.03)); border: 2px solid #00e5cc; overflow: hidden; }
+.profile-avatar { width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(0,229,204,0.15), rgba(0,229,204,0.03)); border: 2px solid #00e5cc; overflow: visible; position: relative; }
 .profile-avatar.large { width: 100px; height: 100px; }
-.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; overflow: hidden; }
 .profile-avatar .initials { font-size: 1.5rem; }
 .profile-avatar.large .initials { font-size: 2rem; }
 .profile-name { font-family: "Bebas Neue", sans-serif; font-size: 1.4rem; color: #e2e8f0; }
