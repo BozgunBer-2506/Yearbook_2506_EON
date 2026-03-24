@@ -35,7 +35,7 @@ const upload = multer({
     if (extname && mimetype) {
       return cb(null, true);
     }
-    cb(new Error('Sadece resim dosyaları kabul edilir (jpeg, jpg, png, gif, webp)'));
+    cb(new Error('Only image files are accepted (jpeg, jpg, png, gif, webp)'));
   }
 });
 
@@ -43,7 +43,7 @@ const upload = multer({
 router.post('/profile-picture', authMiddleware.verifyToken, upload.single('picture'), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ status: 'error', message: 'Resim yüklenmedi' });
+      return res.status(400).json({ status: 'error', message: 'No image uploaded' });
     }
 
     const userId = req.user.id;
@@ -57,12 +57,12 @@ router.post('/profile-picture', authMiddleware.verifyToken, upload.single('pictu
 
     res.json({ 
       status: 'success', 
-      message: 'Profil fotoğrafı yüklendi',
+      message: 'Profile picture uploaded',
       profile_picture_url: profilePictureUrl 
     });
   } catch (error) {
     console.error('Upload error:', error);
-    res.status(500).json({ status: 'error', message: 'Yükleme başarısız' });
+    res.status(500).json({ status: 'error', message: 'Upload failed' });
   }
 });
 

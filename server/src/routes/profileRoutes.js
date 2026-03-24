@@ -28,7 +28,7 @@ router.put('/profile', authMiddleware.verifyToken, async (req, res) => {
     }
 
     if (updates.length === 0) {
-      return res.status(400).json({ status: 'error', message: 'Güncellenecek alan yok' });
+      return res.status(400).json({ status: 'error', message: 'No fields to update' });
     }
 
     values.push(userId);
@@ -37,17 +37,17 @@ router.put('/profile', authMiddleware.verifyToken, async (req, res) => {
     const result = await db.query(query, values);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ status: 'error', message: 'Kullanıcı bulunamadı' });
+      return res.status(404).json({ status: 'error', message: 'User not found' });
     }
 
     res.json({ 
       status: 'success', 
-      message: 'Profil güncellendi',
+      message: 'Profile updated',
       user: result.rows[0]
     });
   } catch (error) {
     console.error('Profile update error:', error);
-    res.status(500).json({ status: 'error', message: 'Güncelleme başarısız' });
+    res.status(500).json({ status: 'error', message: 'Update failed' });
   }
 });
 
@@ -61,13 +61,13 @@ router.get('/profile', authMiddleware.verifyToken, async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ status: 'error', message: 'Kullanıcı bulunamadı' });
+      return res.status(404).json({ status: 'error', message: 'User not found' });
     }
 
     res.json({ status: 'success', user: result.rows[0] });
   } catch (error) {
     console.error('Get profile error:', error);
-    res.status(500).json({ status: 'error', message: 'Profil getirme başarısız' });
+    res.status(500).json({ status: 'error', message: 'Failed to fetch profile' });
   }
 });
 
