@@ -716,21 +716,21 @@ export default function Dashboard() {
             <div className="content-page profile-page">
               <button className="back-btn" onClick={handleBack}>← ZURÜCK</button>
               <div className="profile-header">
-                <div className="profile-avatar large" style={{ position: 'relative', cursor: selectedStudent.id === currentUserId ? 'pointer' : 'default' }}
-                  onClick={() => selectedStudent.id === currentUserId && document.getElementById('avatar-upload')?.click()}>
-                  {selectedStudent.profile_picture_url ? (
-                    <img src={getImageUrl(selectedStudent.profile_picture_url)} alt={selectedStudent.first_name} />
-                  ) : (
-                    <span className="initials">{initials(selectedStudent.first_name, selectedStudent.last_name)}</span>
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  <div className="profile-avatar large">
+                    {selectedStudent.profile_picture_url ? (
+                      <img src={getImageUrl(selectedStudent.profile_picture_url)} alt={selectedStudent.first_name} />
+                    ) : (
+                      <span className="initials">{initials(selectedStudent.first_name, selectedStudent.last_name)}</span>
+                    )}
+                  </div>
+                  {Number(selectedStudent.id) === Number(currentUserId) && (
+                    <button onClick={() => document.getElementById('avatar-upload')?.click()}
+                      style={{ position: 'absolute', bottom: 0, right: 0, width: '28px', height: '28px', borderRadius: '50%', background: '#00e5cc', border: '2px solid #001432', color: '#001432', cursor: 'pointer', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
+                      📷
+                    </button>
                   )}
-                  {selectedStudent.id === currentUserId && (
-                    <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.2s' }}
-                      onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
-                      onMouseLeave={e => (e.currentTarget.style.opacity = '0')}>
-                      <span style={{ fontSize: '1.4rem' }}>📷</span>
-                    </div>
-                  )}
-                  {selectedStudent.id === currentUserId && (
+                  {Number(selectedStudent.id) === Number(currentUserId) && (
                     <input id="avatar-upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleUploadAvatar} />
                   )}
                 </div>
