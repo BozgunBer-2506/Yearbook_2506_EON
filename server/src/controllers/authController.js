@@ -150,7 +150,7 @@ exports.login = async (req, res) => {
 exports.resetPassword = async (req, res) => {
   const { email, newPassword, classCode } = req.body;
 
-  // Sınıf kodu kontrolü — en başta
+  // Class code validation — check first
   if (classCode !== '2506') {
     return res.status(403).json({ error: 'Ungültiger Klassencode.' });
   }
