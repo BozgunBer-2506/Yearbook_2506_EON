@@ -170,18 +170,19 @@ body { font-family: 'DM Sans', sans-serif; background: #000; color: #e2e8f0; ove
   background: rgba(0,229,204,0.04);
   border: 1px solid rgba(0,229,204,0.15);
   border-radius: 10px;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 16px; text-align: center;
+  display: flex; flex-direction: row;
+  align-items: center; justify-content: flex-start;
+  padding: 16px; text-align: left; gap: 16px;
   cursor: pointer; width: 100%; box-sizing: border-box;
   overflow: hidden; min-height: 0;
 }
 .teacher-card:hover { background: rgba(0,229,204,0.1); border-color: #00e5cc; box-shadow: 0 0 20px rgba(0,229,204,0.2); }
 
-.teacher-card .avatar.large { margin: 0 auto 12px auto; }
-.teacher-card .name { font-size: 1rem; word-break: break-word; width: 100%; }
-.teacher-card .role { font-size: 0.8rem; word-break: break-word; width: 100%; }
-.teacher-card .email { font-size: 0.65rem; word-break: break-word; width: 100%; }
+.teacher-card .avatar.large { margin: 0; flex-shrink: 0; }
+.teacher-card .name { font-size: 1rem; word-break: break-word; width: 100%; text-align: left; }
+.teacher-card .role { font-size: 0.8rem; word-break: break-word; width: 100%; text-align: left; }
+.teacher-card .email { font-size: 0.65rem; word-break: break-word; width: 100%; text-align: left; }
+.teacher-card .card-motto { font-size: 0.78rem; font-style: italic; color: rgba(255,255,255,0.6); margin-top: 6px; text-align: left; }
 
 /* ============================================
    STUDENTS GRID —  3x3  
@@ -198,9 +199,9 @@ body { font-family: 'DM Sans', sans-serif; background: #000; color: #e2e8f0; ove
   background: rgba(0,20,50,0.7);
   border: 1px solid rgba(0,229,204,0.25);
   border-radius: 12px;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 8px; text-align: center;
+  display: flex; flex-direction: row;
+  align-items: center; justify-content: flex-start;
+  padding: 10px 12px; text-align: left; gap: 12px;
   cursor: pointer; width: 100%; box-sizing: border-box;
   overflow: hidden; min-height: 0;
   transition: all 0.2s ease;
@@ -208,17 +209,17 @@ body { font-family: 'DM Sans', sans-serif; background: #000; color: #e2e8f0; ove
 .student-card:hover { border-color: rgba(0,229,204,0.6); box-shadow: 0 0 20px rgba(0,229,204,0.2); transform: translateY(-2px); }
 
 .student-card .avatar {
-  width: clamp(30px, 3.5vw, 60px);
-  height: clamp(30px, 3.5vw, 60px);
+  width: clamp(44px, 4vw, 64px);
+  height: clamp(44px, 4vw, 64px);
   border-radius: 50%; border: 2px solid #00e5cc;
   background: rgba(0,229,204,0.1);
   display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 6px auto; overflow: hidden; flex-shrink: 0;
+  margin: 0; overflow: hidden; flex-shrink: 0;
 }
-.student-card .initials { font-size: clamp(0.6rem, 1.2vw, 1.1rem); color: #00e5cc; font-family: "Bebas Neue", sans-serif; }
-.student-card .name { color: #e0f0ff; font-size: clamp(0.55rem, 1vw, 0.85rem); font-weight: 500; word-break: break-word; width: 100%; line-height: 1.2; }
-.student-card .card-email { font-size: clamp(0.4rem, 0.7vw, 0.6rem); color: #94a3b8; margin-top: 2px; word-break: break-all; }
-.student-card .card-motto { font-size: clamp(0.4rem, 0.7vw, 0.65rem); font-style: italic; color: rgba(160,200,232,0.7); margin-top: 4px; }
+.student-card .initials { font-size: clamp(0.8rem, 1.4vw, 1.2rem); color: #00e5cc; font-family: "Bebas Neue", sans-serif; }
+.student-card .name { color: #e0f0ff; font-size: clamp(0.7rem, 1.1vw, 0.95rem); font-weight: 600; word-break: break-word; width: 100%; line-height: 1.2; text-align: left; }
+.student-card .card-email { font-size: clamp(0.5rem, 0.75vw, 0.68rem); color: #94a3b8; margin-top: 2px; word-break: break-all; text-align: left; }
+.student-card .card-motto { font-size: clamp(0.5rem, 0.75vw, 0.7rem); font-style: italic; color: rgba(160,200,232,0.7); margin-top: 4px; text-align: left; }
 
 /* ============================================
    PAGINATION
@@ -250,7 +251,8 @@ body { font-family: 'DM Sans', sans-serif; background: #000; color: #e2e8f0; ove
    MESSAGES
    ============================================ */
 .messages-section { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.messages-list { flex: 1; overflow-y: auto; margin-bottom: 12px; }
+.messages-list { flex: 1; overflow-y: auto; margin-bottom: 12px; scrollbar-width: none; -ms-overflow-style: none; }
+.messages-list::-webkit-scrollbar { display: none; }
 .message-bubble { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
 .msg-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(0,229,204,0.1); border: 1px solid rgba(0,229,204,0.4); font-family: "Space Mono", monospace; font-size: 0.45rem; color: #00e5cc; flex-shrink: 0; }
 .msg-content { flex: 1; padding: 10px 12px; background: rgba(0,229,204,0.04); border: 1px solid rgba(0,229,204,0.15); border-radius: 8px; }
@@ -313,11 +315,21 @@ body { font-family: 'DM Sans', sans-serif; background: #000; color: #e2e8f0; ove
   }
   .teacher-card {
     padding: 12px 8px;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
+    text-align: center;
+    gap: 0;
     background: rgba(0, 20, 50, 0.7);
     border: 1px solid rgba(0, 229, 204, 0.25);
     border-radius: 12px;
   }
+  .teacher-card .card-avatar-wrap { width: 100%; margin-bottom: 8px; }
+  .teacher-card .card-info-wrap { align-items: center; }
+  .teacher-card .card-info-wrap .name,
+  .teacher-card .card-info-wrap .role,
+  .teacher-card .card-info-wrap .email,
+  .teacher-card .card-motto { text-align: center; }
   .teacher-card:active { background: rgba(0, 229, 204, 0.12); border-color: #00e5cc; transform: scale(0.97); }
   .avatar.large { width: 80px !important; height: 80px !important; margin: 0 auto 8px auto; }
   .avatar.large .initials { font-size: 1.6rem !important; }
@@ -335,11 +347,20 @@ body { font-family: 'DM Sans', sans-serif; background: #000; color: #e2e8f0; ove
   }
   .student-card {
     padding: 12px 8px;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
+    text-align: center;
+    gap: 0;
     background: rgba(0, 20, 50, 0.7);
     border: 1px solid rgba(0, 229, 204, 0.25);
     border-radius: 12px;
   }
+  .student-card .card-avatar-wrap { width: 100%; margin-bottom: 8px; }
+  .student-card .card-info-wrap { align-items: center; }
+  .student-card .card-info-wrap .name,
+  .student-card .card-info-wrap .card-email,
+  .student-card .card-motto { text-align: center; }
   .student-card:active { background: rgba(0, 229, 204, 0.1); border-color: #00e5cc; transform: scale(0.97); }
   .student-card .avatar { width: 80px !important; height: 80px !important; margin: 0 auto 8px auto; }
   .student-card .initials { font-size: 1.4rem !important; }
@@ -408,14 +429,14 @@ body { font-family: 'DM Sans', sans-serif; background: #000; color: #e2e8f0; ove
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  margin-bottom: 8px;
+  width: auto;
+  margin-bottom: 0;
 }
 
 .card-info-wrap {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   gap: 4px;
 }
@@ -426,7 +447,7 @@ body { font-family: 'DM Sans', sans-serif; background: #000; color: #e2e8f0; ove
 .card-info-wrap .card-email,
 .card-info-wrap .card-motto {
   width: 100%;
-  text-align: center;
+  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

@@ -73,7 +73,7 @@ const initializeDatabase = async () => {
           'jacob@techstarter.de',
           'Montag bis Freitag · TA Sprechstunde mit Patrick: Do. & Fr.',
           'https://calendar.app.google/CwMvvHrEnan8Sm9N8',
-          'Er gestaltet den Kursunterricht und legt die anstehenden inhaltlichen Schwerpunkte fest.',
+          'Wissen ist der Schlüssel zur Zukunft.',
           true
         ),
         (
@@ -83,7 +83,7 @@ const initializeDatabase = async () => {
           'kevin@techstarter.de',
           'Montag bis Freitag, 08:30 – 17:00 Uhr · Tel: 01579-2512270',
           NULL,
-          'Dein Class Manager ist deine Ansprechperson für alle organisatorischen Fragen rund um den Kurs.',
+          'Organisation ist der halbe Erfolg.',
           false
         ),
         (
@@ -93,7 +93,7 @@ const initializeDatabase = async () => {
           'katrin@techstarter.de',
           'Di. & Do. 09:00–17:00 Uhr · Mi. 12:00–16:00 Uhr',
           NULL,
-          'Gibt dir Tipps und Unterstützung bei Bewerbungsprozessen und hilft dir dich auf dem Arbeitsmarkt zurechtzufinden.',
+          'Dein nächster Job beginnt heute.',
           false
         ),
         (
@@ -103,7 +103,7 @@ const initializeDatabase = async () => {
           'christiane.schwammenhoefer@techstarter.de',
           'Nach Vereinbarung',
           NULL,
-          'Gibt dir Hilfestellung bei der Suche und Recherche nach passenden Stellen.',
+          'Die richtige Stelle wartet auf dich.',
           false
         )
       `);

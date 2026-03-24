@@ -16,7 +16,7 @@ router.get('/teachers', async (req, res) => {
 // GET all students
 router.get('/students', async (req, res) => {
     try {
-        const result = await db.query('SELECT * FROM students ORDER BY last_name ASC');
+        const result = await db.query('SELECT * FROM students ORDER BY first_name ASC');
         res.json(result.rows);
     } catch (err) {
         res.status(500).json({ error: err.message });

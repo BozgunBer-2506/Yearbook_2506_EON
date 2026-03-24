@@ -16,6 +16,7 @@ interface Teacher {
   last_name: string;
   email: string;
   role: string;
+  quote?: string;
   profile_picture_url?: string;
 }
 
@@ -489,8 +490,19 @@ export default function Dashboard() {
 
   const initials = (first: string, last: string) => `${first?.[0] || ''}${last?.[0] || ''}`.toUpperCase();
 
-  const MessageList = ({ msgs }: { msgs: Message[] }) => (
-    <div className="messages-list">
+  const MessageList = ({ msgs }: { msgs: Message[] }) => {
+    const listRef = useRef<HTMLDivElement>(null);
+    const [atBottom, setAtBottom] = useState(true);
+    const handleScroll = () => {
+      const el = listRef.current;
+      if (!el) return;
+      setAtBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 10);
+    };
+    const scrollDown = () => { listRef.current?.scrollBy({ top: 200, behavior: 'smooth' }); };
+    const scrollUp = () => { listRef.current?.scrollBy({ top: -200, behavior: 'smooth' }); };
+    return (
+    <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div className="messages-list" ref={listRef} onScroll={handleScroll}>
       {msgs.length === 0 ? (
         <div className="no-messages">Noch keine Nachrichten</div>
       ) : msgs.map((m) => (
@@ -529,8 +541,16 @@ export default function Dashboard() {
           </div>
         </div>
       ))}
+      </div>
+      {!atBottom && (
+        <button onClick={scrollDown} style={{ position: 'absolute', right: '8px', bottom: '8px', width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(0,229,204,0.15)', border: '1px solid #00e5cc', color: '#00e5cc', cursor: 'pointer', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>▼</button>
+      )}
+      {atBottom && msgs.length > 3 && (
+        <button onClick={scrollUp} style={{ position: 'absolute', right: '8px', bottom: '8px', width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(0,229,204,0.15)', border: '1px solid #00e5cc', color: '#00e5cc', cursor: 'pointer', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>▲</button>
+      )}
     </div>
-  );
+    );
+  };
 
   const MessageForm = () => (
     <form className="message-form" onSubmit={(e) => {
@@ -605,6 +625,7 @@ export default function Dashboard() {
                       <div className="name">{t.first_name} {t.last_name}</div>
                       <div className="role">{t.role}</div>
                       <div className="email">{t.email}</div>
+                      {t.quote && <div className="card-motto">„{t.quote}“</div>}
                     </div>
                   </div>
                 ))}
