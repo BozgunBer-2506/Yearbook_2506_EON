@@ -165,6 +165,7 @@ export default function Dashboard() {
         localStorage.setItem('user', JSON.stringify(data.user));
         setUser(data.user);
         setCurrentUserId(data.user.id);
+        setCurrentUserEmail(data.user.email);
         setIsLoggedIn(true);
         fetchData();
       }
@@ -197,6 +198,7 @@ export default function Dashboard() {
         localStorage.setItem('user', JSON.stringify(data.user));
         setUser(data.user);
         setCurrentUserId(data.user.id);
+        setCurrentUserEmail(data.user.email);
         setIsLoggedIn(true);
         fetchData();
       }
