@@ -9,4 +9,3 @@ COPY . .
 RUN pnpm build
 EXPOSE 3000
 CMD ["serve", "-s", "dist/public", "-l", "3000"]
-# cache bust Sun Mar 22 15:25:08 CET 2026
