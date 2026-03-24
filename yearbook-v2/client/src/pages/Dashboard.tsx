@@ -393,6 +393,11 @@ export default function Dashboard() {
         </header>
         <main className="main" style={{ justifyContent: 'center', alignItems: 'center' }}>
           <div className="content-page" style={{ maxWidth: '400px', width: '100%' }}>
+            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+              <div style={{ fontSize: '2rem', fontWeight: 700, color: '#00e5cc', letterSpacing: '0.15em', marginBottom: '6px' }}>JAHRBUCH</div>
+              <div style={{ fontSize: '1rem', color: '#e0f0ff', letterSpacing: '0.3em', marginBottom: '4px' }}>25-06-EON</div>
+              <div style={{ fontSize: '0.75rem', color: 'rgba(0,229,204,0.6)', letterSpacing: '0.1em' }}>Agile Softwareentwicklung · 2025–2026</div>
+            </div>
             {showReset ? (
               <>
                 <div className="section-label" style={{ marginBottom: '24px' }}>PASSWORT ZURÜCKSETZEN</div>
