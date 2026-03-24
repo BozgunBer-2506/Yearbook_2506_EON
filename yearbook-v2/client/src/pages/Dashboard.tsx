@@ -51,6 +51,7 @@ const isMobile = () => window.innerWidth < 768;
 export default function Dashboard() {
   const [_user, setUser] = useState<User | null>(null);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [authEmail, setAuthEmail] = useState('');
@@ -95,6 +96,7 @@ export default function Dashboard() {
       const u = JSON.parse(userData);
       setUser(u);
       setCurrentUserId(u.id);
+      setCurrentUserEmail(u.email);
       setIsLoggedIn(true);
       fetchData();
     } else {
@@ -351,6 +353,7 @@ export default function Dashboard() {
     localStorage.removeItem('currentPage');
     setUser(null);
     setCurrentUserId(null);
+    setCurrentUserEmail(null);
     setIsLoggedIn(false);
     setAuthEmail('');
     setAuthPassword('');
@@ -738,13 +741,13 @@ export default function Dashboard() {
                       <span className="initials">{initials(selectedStudent.first_name, selectedStudent.last_name)}</span>
                     )}
                   </div>
-                  {Number(selectedStudent.id) === Number(currentUserId) && (
+                  {selectedStudent.email === currentUserEmail && (
                     <button onClick={() => document.getElementById('avatar-upload')?.click()}
                       style={{ position: 'absolute', bottom: 0, right: 0, width: '28px', height: '28px', borderRadius: '50%', background: '#00e5cc', border: '2px solid #001432', color: '#001432', cursor: 'pointer', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
                       📷
                     </button>
                   )}
-                  {Number(selectedStudent.id) === Number(currentUserId) && (
+                  {selectedStudent.email === currentUserEmail && (
                     <input id="avatar-upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleUploadAvatar} />
                   )}
                 </div>
