@@ -262,6 +262,27 @@ export default function Dashboard() {
     localStorage.setItem('currentView', JSON.stringify({ type: 'student', id: student.id }));
   };
 
+  const handleUploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('image', file);
+    try {
+      const res = await fetch(`${API}/upload/profile-picture`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setSelectedStudent(prev => prev ? { ...prev, profile_picture_url: data.url } : prev);
+        const u = JSON.parse(localStorage.getItem('user') || '{}');
+        u.profile_picture_url = data.url;
+        localStorage.setItem('user', JSON.stringify(u));
+      }
+    } catch {}
+  };
+
   const handleBack = () => {
     setSelectedTeacher(null);
     setSelectedStudent(null);
@@ -695,11 +716,22 @@ export default function Dashboard() {
             <div className="content-page profile-page">
               <button className="back-btn" onClick={handleBack}>← ZURÜCK</button>
               <div className="profile-header">
-                <div className="profile-avatar large">
+                <div className="profile-avatar large" style={{ position: 'relative', cursor: selectedStudent.id === currentUserId ? 'pointer' : 'default' }}
+                  onClick={() => selectedStudent.id === currentUserId && document.getElementById('avatar-upload')?.click()}>
                   {selectedStudent.profile_picture_url ? (
                     <img src={getImageUrl(selectedStudent.profile_picture_url)} alt={selectedStudent.first_name} />
                   ) : (
                     <span className="initials">{initials(selectedStudent.first_name, selectedStudent.last_name)}</span>
+                  )}
+                  {selectedStudent.id === currentUserId && (
+                    <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.2s' }}
+                      onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+                      onMouseLeave={e => (e.currentTarget.style.opacity = '0')}>
+                      <span style={{ fontSize: '1.4rem' }}>📷</span>
+                    </div>
+                  )}
+                  {selectedStudent.id === currentUserId && (
+                    <input id="avatar-upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleUploadAvatar} />
                   )}
                 </div>
                 <div>
