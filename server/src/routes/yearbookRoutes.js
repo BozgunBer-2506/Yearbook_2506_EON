@@ -27,7 +27,7 @@ router.get('/students', async (req, res) => {
 router.get('/messages/student/:id', async (req, res) => {
     try {
         const result = await db.query(`
-      SELECT m.*, u.first_name || ' ' || u.last_name AS author_name
+      SELECT m.*, m.from_user_id AS author_id, u.first_name || ' ' || u.last_name AS author_name
       FROM messages m
       LEFT JOIN users u ON m.from_user_id = u.id
       WHERE m.to_student_id = $1
@@ -43,7 +43,7 @@ router.get('/messages/student/:id', async (req, res) => {
 router.get('/messages/teacher/:id', async (req, res) => {
     try {
         const result = await db.query(`
-      SELECT m.*, u.first_name || ' ' || u.last_name AS author_name
+      SELECT m.*, m.from_user_id AS author_id, u.first_name || ' ' || u.last_name AS author_name
       FROM messages m
       LEFT JOIN users u ON m.from_user_id = u.id
       WHERE m.to_teacher_id = $1
