@@ -77,7 +77,7 @@ export default function Dashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
   const [editingContent, setEditingContent] = useState('');
-  const [studentPage, setStudentPage] = useState(0);
+  const [studentPage, setStudentPage] = useState(() => parseInt(localStorage.getItem('studentPage') || '0', 10));
   const [loading, setLoading] = useState(true);
   const touchStartX = useRef(0);
 
@@ -279,7 +279,12 @@ export default function Dashboard() {
       });
       const data = await res.json();
       if (res.ok && data.profile_picture_url) {
+        // Update selected student profile view
         setSelectedStudent(prev => prev ? { ...prev, profile_picture_url: data.profile_picture_url } : prev);
+        // Also update the students list so card shows new photo
+        setStudents(prev => prev.map(s =>
+          s.email === currentUserEmail ? { ...s, profile_picture_url: data.profile_picture_url } : s
+        ));
         const u = JSON.parse(localStorage.getItem('user') || '{}');
         u.profile_picture_url = data.profile_picture_url;
         localStorage.setItem('user', JSON.stringify(u));
@@ -373,7 +378,9 @@ export default function Dashboard() {
   const nextPage = () => {
     if (selectedTeacher || selectedStudent) return;
     if (page === 'students' && studentPage < totalStudentPages - 1) {
-      setStudentPage(studentPage + 1);
+      const np = studentPage + 1;
+      setStudentPage(np);
+      localStorage.setItem('studentPage', String(np));
       return;
     }
     if (currentIndex < pages.length - 1) {
@@ -381,13 +388,16 @@ export default function Dashboard() {
       setPage(newPage);
       localStorage.setItem('currentPage', newPage);
       setStudentPage(0);
+      localStorage.setItem('studentPage', '0');
     }
   };
 
   const prevPage = () => {
     if (selectedTeacher || selectedStudent) return;
     if (page === 'students' && studentPage > 0) {
-      setStudentPage(studentPage - 1);
+      const pp = studentPage - 1;
+      setStudentPage(pp);
+      localStorage.setItem('studentPage', String(pp));
       return;
     }
     if (currentIndex > 0) {
@@ -395,6 +405,7 @@ export default function Dashboard() {
       setPage(newPage);
       localStorage.setItem('currentPage', newPage);
       setStudentPage(0);
+      localStorage.setItem('studentPage', '0');
     }
   };
 
@@ -698,9 +709,9 @@ export default function Dashboard() {
               </div>
               {totalStudentPages > 1 && (
                 <div className="pagination">
-                  <button className="page-btn" onClick={() => setStudentPage(p => Math.max(0, p - 1))} disabled={studentPage === 0}>◀</button>
+                  <button className="page-btn" onClick={() => { const np = Math.max(0, studentPage - 1); setStudentPage(np); localStorage.setItem('studentPage', String(np)); }} disabled={studentPage === 0}>◀</button>
                   <span className="page-num">{studentPage + 1} / {totalStudentPages}</span>
-                  <button className="page-btn" onClick={() => setStudentPage(p => Math.min(totalStudentPages - 1, p + 1))} disabled={studentPage === totalStudentPages - 1}>▶</button>
+                  <button className="page-btn" onClick={() => { const np = Math.min(totalStudentPages - 1, studentPage + 1); setStudentPage(np); localStorage.setItem('studentPage', String(np)); }} disabled={studentPage === totalStudentPages - 1}>▶</button>
                 </div>
               )}
             </div>
