@@ -85,4 +85,48 @@ router.post('/profile-picture', authMiddleware.verifyToken, upload.single('pictu
   }
 });
 
+// Delete profile picture
+router.delete('/profile-picture', authMiddleware.verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    // Get current profile picture URL from users table
+    const userResult = await db.query('SELECT email, profile_picture_url FROM users WHERE id = $1', [userId]);
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ status: 'error', message: 'User not found' });
+    }
+
+    const { email, profile_picture_url } = userResult.rows[0];
+
+    // Delete from Cloudinary if it's a Cloudinary URL
+    if (profile_picture_url && profile_picture_url.includes('cloudinary.com')) {
+      try {
+        // Extract public_id from URL (e.g. yearbook-avatars/user_5_1234567890)
+        const matches = profile_picture_url.match(/yearbook-avatars\/[^.]+/);
+        if (matches) {
+          await cloudinary.uploader.destroy(matches[0]);
+          console.log(`[Upload] Cloudinary image deleted: ${matches[0]}`);
+        }
+      } catch (cloudErr) {
+        console.warn('[Upload] Cloudinary delete warning:', cloudErr.message);
+        // Continue even if Cloudinary delete fails
+      }
+    }
+
+    // Clear profile_picture_url in users table
+    await db.query('UPDATE users SET profile_picture_url = NULL WHERE id = $1', [userId]);
+
+    // Clear profile_picture_url in students table
+    await db.query(
+      'UPDATE students SET profile_picture_url = NULL WHERE LOWER(email) = LOWER($1)',
+      [email]
+    );
+
+    res.json({ status: 'success', message: 'Profile picture deleted' });
+  } catch (error) {
+    console.error('Delete avatar error:', error);
+    res.status(500).json({ status: 'error', message: 'Delete failed' });
+  }
+});
+
 module.exports = router;
