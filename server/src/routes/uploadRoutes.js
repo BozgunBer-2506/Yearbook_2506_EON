@@ -12,16 +12,17 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Use memory storage — file is uploaded to Cloudinary via stream, not saved to disk
+// Multer configuration with 10MB limit and English/German filtering
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  limits: { fileSize: 10 * 1024 * 1024 }, // Increased to 10MB
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif|webp/;
     const extname = allowedTypes.test(file.originalname.toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
     if (extname && mimetype) return cb(null, true);
-    cb(new Error('Only image files are accepted (jpeg, jpg, png, gif, webp)'));
+    // Error message in German for the UI
+    cb(new Error('Nur Bilddateien sind erlaubt (jpeg, jpg, png, gif, webp)'));
   },
 });
 
@@ -43,14 +44,29 @@ const uploadToCloudinary = (buffer, userId) => {
   });
 };
 
-// Upload profile picture
-router.post('/profile-picture', authMiddleware.verifyToken, upload.single('picture'), async (req, res) => {
+// POST: Upload profile picture
+router.post('/profile-picture', authMiddleware.verifyToken, (req, res, next) => {
+  // Custom Multer error handler for file size limits
+  upload.single('picture')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ 
+          status: 'error', 
+          message: 'Die Datei ist zu groß. Maximale Größe ist 10MB.' 
+        });
+      }
+      return res.status(400).json({ status: 'error', message: err.message });
+    } else if (err) {
+      return res.status(400).json({ status: 'error', message: err.message });
+    }
+    next();
+  });
+}, async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ status: 'error', message: 'No image uploaded' });
+      return res.status(400).json({ status: 'error', message: 'Kein Bild hochgeladen' });
     }
 
-    // JWT token stores userId (not id) — must use req.user.userId
     const userId = req.user.userId;
 
     // Upload to Cloudinary
@@ -63,69 +79,59 @@ router.post('/profile-picture', authMiddleware.verifyToken, upload.single('pictu
       [profilePictureUrl, userId]
     );
 
-    // Also update students table by matching email (case-insensitive)
+    // Update students table by matching email
     const userResult = await db.query('SELECT email FROM users WHERE id = $1', [userId]);
     if (userResult.rows.length > 0) {
       const userEmail = userResult.rows[0].email;
-      const studentUpdate = await db.query(
+      await db.query(
         'UPDATE students SET profile_picture_url = $1 WHERE LOWER(email) = LOWER($2)',
         [profilePictureUrl, userEmail]
       );
-      console.log(`[Upload] students table updated: ${studentUpdate.rowCount} row(s) for email: ${userEmail}`);
     }
 
     res.json({
       status: 'success',
-      message: 'Profile picture uploaded',
+      message: 'Profilbild erfolgreich hochgeladen',
       profile_picture_url: profilePictureUrl,
     });
   } catch (error) {
     console.error('Upload error:', error);
-    res.status(500).json({ status: 'error', message: 'Upload failed' });
+    res.status(500).json({ status: 'error', message: 'Upload fehlgeschlagen' });
   }
 });
 
-// Delete profile picture
+// DELETE: Remove profile picture
 router.delete('/profile-picture', authMiddleware.verifyToken, async (req, res) => {
   try {
     const userId = req.user.userId;
-
-    // Get current profile picture URL from users table
     const userResult = await db.query('SELECT email, profile_picture_url FROM users WHERE id = $1', [userId]);
+    
     if (userResult.rows.length === 0) {
-      return res.status(404).json({ status: 'error', message: 'User not found' });
+      return res.status(404).json({ status: 'error', message: 'Benutzer nicht gefunden' });
     }
 
     const { email, profile_picture_url } = userResult.rows[0];
 
-    // Delete from Cloudinary if it's a Cloudinary URL
+    // Remove from Cloudinary if exists
     if (profile_picture_url && profile_picture_url.includes('cloudinary.com')) {
       try {
-        // Extract public_id from URL (e.g. yearbook-avatars/user_5_1234567890)
         const matches = profile_picture_url.match(/yearbook-avatars\/[^.]+/);
         if (matches) {
           await cloudinary.uploader.destroy(matches[0]);
-          console.log(`[Upload] Cloudinary image deleted: ${matches[0]}`);
         }
       } catch (cloudErr) {
-        console.warn('[Upload] Cloudinary delete warning:', cloudErr.message);
-        // Continue even if Cloudinary delete fails
+        console.warn('Cloudinary delete warning:', cloudErr.message);
       }
     }
 
-    // Clear profile_picture_url in users table
+    // Reset database fields
     await db.query('UPDATE users SET profile_picture_url = NULL WHERE id = $1', [userId]);
+    await db.query('UPDATE students SET profile_picture_url = NULL WHERE LOWER(email) = LOWER($1)', [email]);
 
-    // Clear profile_picture_url in students table
-    await db.query(
-      'UPDATE students SET profile_picture_url = NULL WHERE LOWER(email) = LOWER($1)',
-      [email]
-    );
-
-    res.json({ status: 'success', message: 'Profile picture deleted' });
+    res.json({ status: 'success', message: 'Profilbild gelöscht' });
   } catch (error) {
-    console.error('Delete avatar error:', error);
-    res.status(500).json({ status: 'error', message: 'Delete failed' });
+    console.error('Delete error:', error);
+    res.status(500).json({ status: 'error', message: 'Löschen fehlgeschlagen' });
   }
 });
 
