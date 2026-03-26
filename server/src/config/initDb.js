@@ -87,7 +87,7 @@ const initializeDatabase = async () => {
           false
         ),
         (
-          'Katrin', 'Baumann',
+          'Katrin', 'Bergmann',
           'Career Coach',
           'Bewerbung & Arbeitsmarkt',
           'katrin@techstarter.de',
