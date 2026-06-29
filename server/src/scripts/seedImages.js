@@ -28,7 +28,8 @@ async function seedImages() {
       { first_name: 'Jacob',      last_name: 'Menge',           url: 'jacob.png' },
       { first_name: 'Kevin',      last_name: 'Kersten',         url: 'kevin.png' },
       { first_name: 'Katrin',     last_name: 'Baumann',         url: 'katrin.png' },
-      { first_name: 'Christiane', last_name: 'Schwammenhöfer',  url: 'christiane.png' }
+      { first_name: 'Christiane', last_name: 'Schwammenhöfer',  url: 'christiane.png' },
+      { first_name: 'Suheib',     last_name: 'Marzouka',         url: 'suheib.marzouka.png' }
     ];
 
     console.log('\nUpdating teachers...');
