@@ -454,7 +454,7 @@ export default function Dashboard() {
             <div style={{ textAlign: 'center', marginBottom: '32px' }}>
               <div style={{ fontSize: '2rem', fontWeight: 700, color: '#00e5cc', letterSpacing: '0.15em', marginBottom: '6px' }}>JAHRBUCH</div>
               <div style={{ fontSize: '1rem', color: '#e0f0ff', letterSpacing: '0.3em', marginBottom: '4px' }}>25-06-EON</div>
-              <div style={{ fontSize: '0.75rem', color: 'rgba(0,229,204,0.6)', letterSpacing: '0.1em' }}>Agile Softwareentwicklung · 2025–2026</div>
+              <div style={{ fontSize: '0.75rem', color: 'rgba(0,229,204,0.6)', letterSpacing: '0.1em' }}>Agile Softwareentwicklung · Jun 25 – Jun 26</div>
             </div>
             {showReset ? (
               <>
@@ -655,7 +655,7 @@ export default function Dashboard() {
               <div className="info-grid">
                 <div className="info-item"><span className="info-label">KURS</span><span className="info-value">Agile Softwareentwicklung</span></div>
                 <div className="info-item"><span className="info-label">SCHWERPUNKT</span><span className="info-value">Linux & Cloud Engineering</span></div>
-                <div className="info-item"><span className="info-label">ZEITRAUM</span><span className="info-value">Juni 2025 – März 2026</span></div>
+                <div className="info-item"><span className="info-label">ZEITRAUM</span><span className="info-value">Juni 2025 – Juni 2026</span></div>
                 <div className="info-item"><span className="info-label">INSTITUT</span><span className="info-value">Syntax Institut</span></div>
               </div>
               <div className="section-label" style={{ marginTop: '24px', marginBottom: '12px' }}>// TEAM & LEHRKOLLEGIUM</div>
