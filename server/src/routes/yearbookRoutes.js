@@ -6,7 +6,7 @@ const { verifyToken } = require('../middleware/authMiddleware');
 // GET all teachers
 router.get('/teachers', async (req, res) => {
     try {
-        const result = await db.query('SELECT * FROM teachers ORDER BY is_klassenlehrer DESC, CASE WHEN role LIKE 'Dozent%' THEN 0 ELSE 1 END ASC, id ASC');
+        const result = await db.query("SELECT * FROM teachers ORDER BY is_klassenlehrer DESC, CASE WHEN role LIKE 'Dozent%' THEN 0 ELSE 1 END ASC, id ASC");
         res.json(result.rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
