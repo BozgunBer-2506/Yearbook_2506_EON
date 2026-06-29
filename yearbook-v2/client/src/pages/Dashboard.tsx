@@ -782,12 +782,12 @@ export default function Dashboard() {
                   )}
                   {selectedStudent.email === currentUserEmail && (
                     <input id="avatar-upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleUploadAvatar} />
+                  )}
                   {selectedStudent.profile_picture_url && (
                     <button onClick={handleDeleteAvatar} title="Foto loeschen"
                       style={{ position: 'absolute', top: 0, right: 0, width: '22px', height: '22px', borderRadius: '50%', background: '#ff4444', border: '2px solid #001432', color: '#fff', cursor: 'pointer', fontSize: '0.65rem', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
                       ✕
                     </button>
-                  )}
                   )}
                 </div>
                 <div>
