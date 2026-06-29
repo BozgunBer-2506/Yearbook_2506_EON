@@ -660,8 +660,8 @@ export default function Dashboard() {
               </div>
               <div className="section-label" style={{ marginTop: '24px', marginBottom: '12px' }}>// TEAM & LEHRKOLLEGIUM</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                {teachers.slice(0, 4).map(t => (
-                  <div key={t.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '12px', background: 'rgba(0,229,204,0.04)', border: '1px solid rgba(0,229,204,0.15)', borderRadius: '8px', textAlign: 'center' }}>
+                {teachers.map((t, idx) => (
+                  <div key={t.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '12px', background: 'rgba(0,229,204,0.04)', border: '1px solid rgba(0,229,204,0.15)', borderRadius: '8px', textAlign: 'center', gridColumn: teachers.length % 2 !== 0 && idx === teachers.length - 1 ? 'span 2' : undefined }}>
                     <div style={{ width: '52px', height: '52px', borderRadius: '50%', border: '1.5px solid #00e5cc', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00e5cc', fontSize: '0.9rem', background: 'rgba(0,229,204,0.1)', flexShrink: 0 }}>
                       {t.profile_picture_url
                         ? <img src={getImageUrl(t.profile_picture_url)} alt={t.first_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
