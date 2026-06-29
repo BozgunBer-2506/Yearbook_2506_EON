@@ -301,10 +301,21 @@ body { font-family: 'DM Sans', sans-serif; background: #000; color: #e2e8f0; ove
   .content { padding: 8px 6px; overflow-y: auto; height: auto; }
   .content-page { overflow-y: auto; height: auto; }
   .nav-btn-desktop { display: none; }
-  .nav-mobile { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 10px 0 4px; }
-  .nav-dots { display: flex; gap: 6px; align-items: center; }
-  .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(0,229,204,0.3); }
-  .nav-dot.active { background: #00e5cc; width: 8px; height: 8px; }
+  .nav-mobile {
+    display: flex;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    align-items: center; justify-content: center;
+    gap: 20px; padding: 10px 16px 14px;
+    background: rgba(0,5,20,0.92);
+    border-top: 1px solid rgba(0,229,204,0.15);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+  }
+  .nav-dots { display: flex; gap: 7px; align-items: center; }
+  .nav-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(0,229,204,0.3); transition: all 0.2s; }
+  .nav-dot.active { background: #00e5cc; width: 9px; height: 9px; }
+  .content { padding-bottom: 60px; }
 
   /* Course Info */
   .section-label { font-size: 0.55rem; margin-bottom: 10px; }
