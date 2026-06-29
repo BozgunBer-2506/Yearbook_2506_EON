@@ -1,5 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap");
 
+* { scrollbar-width: thin; scrollbar-color: rgba(0,229,204,0.4) rgba(0,229,204,0.05); }
+*::-webkit-scrollbar { width: 5px; height: 5px; }
+*::-webkit-scrollbar-track { background: rgba(0,229,204,0.05); border-radius: 4px; }
+*::-webkit-scrollbar-thumb { background: rgba(0,229,204,0.4); border-radius: 4px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(0,229,204,0.7); }
+
 /* ============================================
    LOGIN PAGE STYLES
    ============================================ */
