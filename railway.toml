@@ -16,6 +16,7 @@ Path = "/health"
 
 [[services]]
 name = "client"
+source = "yearbook-v2"
 dockerfile = "yearbook-v2/Dockerfile"
 
 [services.deploy]
