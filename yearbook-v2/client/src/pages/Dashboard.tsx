@@ -754,6 +754,7 @@ margin: teachers.length % 2 !== 0 && idx === teachers.length - 1 ? '0 auto' : un
                   <div className="profile-name">{selectedTeacher.first_name} {selectedTeacher.last_name}</div>
                   <div className="profile-role">{selectedTeacher.role}</div>
                   <div className="profile-email">{selectedTeacher.email}</div>
+                  {selectedTeacher.quote && <div className="profile-bio">„{selectedTeacher.quote}"</div>}
                 </div>
               </div>
               <div className="messages-section">
