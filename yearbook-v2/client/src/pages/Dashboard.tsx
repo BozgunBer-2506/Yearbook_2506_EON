@@ -812,17 +812,19 @@ margin: teachers.length % 2 !== 0 && idx === teachers.length - 1 ? '0 auto' : un
         <button className="nav-btn nav-btn-desktop" onClick={nextPage}
           disabled={(currentIndex === pages.length - 1 && studentPage === totalStudentPages - 1) || !!selectedTeacher || !!selectedStudent}>▶</button>
 
-        <div className="nav-mobile">
-          <button className="nav-btn" onClick={prevPage}
-            disabled={currentIndex === 0 && studentPage === 0 || !!selectedTeacher || !!selectedStudent}>◀</button>
-          <div className="nav-dots">
-            {pages.map((p, i) => (
-              <span key={p} className={`nav-dot${i === currentIndex ? ' active' : ''}`} />
-            ))}
+        {page !== 'students' && !selectedTeacher && !selectedStudent && (
+          <div className="nav-mobile">
+            <button className="nav-btn" onClick={prevPage}
+              disabled={currentIndex === 0}>◀</button>
+            <div className="nav-dots">
+              {pages.map((p, i) => (
+                <span key={p} className={`nav-dot${i === currentIndex ? ' active' : ''}`} />
+              ))}
+            </div>
+            <button className="nav-btn" onClick={nextPage}
+              disabled={currentIndex === pages.length - 1}>▶</button>
           </div>
-          <button className="nav-btn" onClick={nextPage}
-            disabled={(currentIndex === pages.length - 1 && studentPage === totalStudentPages - 1) || !!selectedTeacher || !!selectedStudent}>▶</button>
-        </div>
+        )}
       </main>
     </div>
   );

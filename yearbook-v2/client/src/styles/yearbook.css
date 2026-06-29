@@ -328,13 +328,18 @@ body { font-family: 'DM Sans', sans-serif; background: #000; color: #e2e8f0; ove
   .course-quote { font-size: 0.9rem; padding: 12px; }
   .course-quote em { font-size: 0.75rem; }
 
-  /* Teachers — mobilde 2x2 */
+  /* Teachers — mobilde tek kolon */
   .teachers-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     grid-auto-rows: auto;
-    gap: 6px;
+    gap: 10px;
     overflow: visible;
     height: auto;
+  }
+  .teachers-grid .teacher-card:last-child:nth-child(odd) {
+    grid-column: 1;
+    width: 100%;
+    margin: 0;
   }
   .teacher-card {
     padding: 12px 8px;
