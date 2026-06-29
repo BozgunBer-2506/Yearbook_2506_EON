@@ -447,7 +447,7 @@ export default function Dashboard() {
     return (
       <div className="app">
         <header className="header">
-          <div className="logo">JAHRBUCH 25-06-EON</div>
+          <div className="logo" style={{ cursor: 'pointer' }} onClick={() => { setPage('course'); setSelectedTeacher(null); setSelectedStudent(null); }}>JAHRBUCH 25-06-EON</div>
         </header>
         <main className="main" style={{ justifyContent: 'center', alignItems: 'center' }}>
           <div className="content-page" style={{ maxWidth: '400px', width: '100%', background: 'rgba(0,10,30,0.6)', border: '1px solid rgba(0,229,204,0.3)', borderRadius: '16px', backdropFilter: 'blur(8px)', boxShadow: '0 0 40px rgba(0,229,204,0.05), inset 0 1px 0 rgba(0,229,204,0.1)', padding: '32px 28px' }}>
@@ -637,7 +637,7 @@ export default function Dashboard() {
   return (
     <div className="app">
       <header className="header">
-        <div className="logo">JAHRBUCH 25-06-EON</div>
+        <div className="logo" style={{ cursor: 'pointer' }} onClick={() => { setPage('course'); setSelectedTeacher(null); setSelectedStudent(null); }}>JAHRBUCH 25-06-EON</div>
         <button className="logout-btn" onClick={handleLogout}>LOGOUT</button>
       </header>
 
