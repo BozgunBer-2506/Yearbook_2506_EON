@@ -87,6 +87,8 @@ body { font-family: 'DM Sans', sans-serif; background: #000; color: #e2e8f0; ove
   padding: 20px 30px; gap: 20px; overflow: hidden;
 }
 
+.nav-mobile { display: none; }
+
 .nav-btn {
   width: 45px; height: 45px; border-radius: 50%;
   background: rgba(0,229,204,0.1); border: 1px solid #00e5cc;
@@ -299,6 +301,10 @@ body { font-family: 'DM Sans', sans-serif; background: #000; color: #e2e8f0; ove
   .content { padding: 8px 6px; overflow-y: auto; height: auto; }
   .content-page { overflow-y: auto; height: auto; }
   .nav-btn-desktop { display: none; }
+  .nav-mobile { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 10px 0 4px; }
+  .nav-dots { display: flex; gap: 6px; align-items: center; }
+  .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(0,229,204,0.3); }
+  .nav-dot.active { background: #00e5cc; width: 8px; height: 8px; }
 
   /* Course Info */
   .section-label { font-size: 0.55rem; margin-bottom: 10px; }
